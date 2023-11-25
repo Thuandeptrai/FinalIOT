@@ -11,6 +11,7 @@ const canvas = require('canvas');
 const faceApi = require('face-api.js');
 const multer = require('multer');
 const jwt = require('jsonwebtoken');
+const bcryptjs = require('bcryptjs');
 const usermodel = require('./model/usermodel');
 const mongoose = require('mongoose');
 const { createUser } = require('./controller/user.controller');
@@ -150,6 +151,28 @@ app.post('/url', upload.single('images'), async (req, res) => {
     }
 
 })
+app.post('/login', async (req, res) => {
+    console.log(req.body)
+    const { username, password } = req.body;
+    console.log(username)
+    const userName = await usermodel.findOne({ username: username });
+    if (!userName) {
+        return res.status(400).json({ message: "username not found" })
+    }
+    const checkPassword = bcryptjs.compareSync(password, userName.password);
+    if (!checkPassword) {
+        return res.status(400).json({ message: "password invalid" })
+    }
+    const jwt_token = jwt.sign({
+        _id: userName._id,
+    },"secret", {
+        expiresIn: '1h'
+    })
+    return res.status(200).json({ message: {
+        userName: userName.username,
+        jwt_token: jwt_token
+    }})
+});
 app.listen(5001, () => console.log('Server started on port 3000'));
 
 wss.on('connection', function connection(ws) {
