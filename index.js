@@ -97,12 +97,12 @@ app.post('/upload', upload.array('images', 2), async (req, res) => {
         console.log(e)
     }
 });
-app.post('/upload1', upload.single('images'), async (req, res) => {
+app.post('/signUpWithImage', upload.single('images'), async (req, res) => {
     // signup face and label for face recognition
    createUser(req, res);
 
 });
-app.post('/url', upload.single('images'), async (req, res) => {
+app.post('/loginWithImage', upload.single('images'), async (req, res) => {
     try {
         // compare similarity upload one image with local image
         const image1 = req.file.path;   
@@ -151,7 +151,7 @@ app.post('/url', upload.single('images'), async (req, res) => {
     }
 
 })
-app.post('/login', async (req, res) => {
+app.post('/loginWithPassword', async (req, res) => {
     console.log(req.body)
     const { username, password } = req.body;
     console.log(username)
