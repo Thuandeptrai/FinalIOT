@@ -1,8 +1,47 @@
+
 const ws = require('ws');
 const http = require('http');
+const user = require('./model/usermodel');
 const url = require('url');
 const uuid = require('uuid');
+const fs = require('fs');
+const express = require('express');
+const bodyParser = require('body-parser');
+const canvas = require('canvas');
+const faceApi = require('face-api.js');
+const multer = require('multer');
+const jwt = require('jsonwebtoken');
+const usermodel = require('./model/usermodel');
+const mongoose = require('mongoose');
+const { createUser } = require('./controller/user.controller');
+mongoose.connect('mongodb://127.0.0.1:27017/face', { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
+    console.log("connect mongodb success")
+}).catch((err) => {
+    console.log(err)
+});
 
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads/')
+    },
+    filename: function (req, file, cb) {
+        const fileName = file.originalname.split('.');
+        cb(null, fileName[0] + '-' + Date.now() + '.' + fileName[1])
+    }
+})
+
+
+// connect mogodb
+const upload = multer({ storage: storage });
+// save 
+// import '@tensorflow/tfjs-node';
+const app = express();
+// middle ware to parse json
+app.use(express.static('public'));
+// allow json
+app.use(bodyParser.json());
+// allow url encoded
+app.use(bodyParser.urlencoded({ extended: false }));
 
 const wss = new ws.Server({ port: 8120 });
 
@@ -19,6 +58,99 @@ const defaultObj = (id) => {
         device6: 0,
     }
 }
+// implement facejs api
+const { Canvas, Image, ImageData } = canvas
+faceApi.env.monkeyPatch({ Canvas, Image, ImageData })
+// load models
+const MODELS_URL = './models'
+const faceDetectionOptions = new faceApi.SsdMobilenetv1Options({ minConfidence: 0.5 })
+// load models
+faceApi.nets.ssdMobilenetv1.loadFromDisk(MODELS_URL)
+faceApi.nets.faceLandmark68Net.loadFromDisk(MODELS_URL)
+faceApi.nets.faceRecognitionNet.loadFromDisk(MODELS_URL)
+// load BBT face similarity via url into endpoint  /url
+
+
+
+
+
+
+app.get('/', (req, res) => {
+});
+
+app.post('/upload', upload.array('images', 2), async (req, res) => {
+    try {
+        // const get image from request.body.image1
+        const image1 = req.files[0].path;
+        const image2 = req.files[1].path;
+        const img1 = await canvas.loadImage(image1)
+        const img2 = await canvas.loadImage(image2)
+        // face similarity from image1 and image2
+        const results = await faceApi.detectAllFaces(img1).withFaceLandmarks().withFaceDescriptors()
+        const faceMatcher = new faceApi.FaceMatcher(results)
+        const singleResult = await faceApi.detectSingleFace(img2).withFaceLandmarks().withFaceDescriptor()
+        const bestMatch = faceMatcher.findBestMatch(singleResult.descriptor)
+        console.log(bestMatch)
+        return res.status(200).json({ message: bestMatch.toString() })
+    } catch (e) {
+        console.log(e)
+    }
+});
+app.post('/upload1', upload.single('images'), async (req, res) => {
+    // signup face and label for face recognition
+   createUser(req, res);
+
+});
+app.post('/url', upload.single('images'), async (req, res) => {
+    try {
+        // compare similarity upload one image with local image
+        const image1 = req.file.path;   
+        const img1 = await canvas.loadImage(image1)
+        let bestMatch = null;
+        let savedId = null;
+        const results = await faceApi.detectAllFaces(img1).withFaceLandmarks().withFaceDescriptors()
+        const faceMatcher = new faceApi.FaceMatcher(results)
+        // load labeledFaceDescriptors from file json to compare
+        const file = fs.readFileSync('./labeledFaceDescriptors.json');
+        if(file) {
+            const parseToObject = JSON.parse(file);
+            for(let i = 0; i < parseToObject.length; i++) {
+                // compare similarity 
+                // Error: arr1 and arr2 must have the same length
+                const data = faceMatcher.findBestMatch(parseToObject[i].descriptors[0])
+                if(data.distance < 0.5 ) {
+                    bestMatch = data;
+                    savedId = parseToObject[i].label;
+                    console.log(data)
+                    break;
+                }
+            }
+        }
+        if(bestMatch !== null) {
+            console.log(bestMatch)
+            const findUser = await usermodel.findOne({faceID: savedId});
+            console.log(findUser)
+            const jwt_token = jwt.sign(
+                {
+                   _id: findUser._id,
+                },
+                'secret',
+                {
+                    expiresIn: '1h'
+                }
+            )
+            return res.status(200).json({ message: {
+                userName: findUser.username,
+                jwt_token: jwt_token
+            }})
+        }
+        return res.status(200).json({ message: null })
+    } catch (e) {
+        console.log(e)
+    }
+
+})
+app.listen(5001, () => console.log('Server started on port 3000'));
 
 wss.on('connection', function connection(ws) {
     // get Sec-Websocket-Protocol from client
@@ -28,6 +160,18 @@ wss.on('connection', function connection(ws) {
         const obj = defaultObj(id);
         mapDeviceToObj.set(id, obj);
         objToMapDevice.set(ws, id);
+        const allDevice = [];
+        for (let [key, value] of mapDeviceToObj) {
+            allDevice.push(value);
+        }
+        wss.clients.forEach(function each(client) {
+            if (client.readyState === ws.OPEN) {
+                if (!objToMapDevice.get(client)) {
+
+                    client.send(JSON.stringify(allDevice));
+                }
+            }
+        });
         ws.send(JSON.stringify(obj));
     } else {
         // get all data in map
