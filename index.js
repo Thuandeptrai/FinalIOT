@@ -57,6 +57,7 @@ const defaultObj = (id) => {
         device4: 0,
         device5: 0,
         device6: 0,
+        isAlive: trueb
     }
 }
 // implement facejs api
@@ -99,13 +100,13 @@ app.post('/upload', upload.array('images', 2), async (req, res) => {
 });
 app.post('/signUpWithImage', upload.single('images'), async (req, res) => {
     // signup face and label for face recognition
-   createUser(req, res);
+    createUser(req, res);
 
 });
 app.post('/loginWithImage', upload.single('images'), async (req, res) => {
     try {
         // compare similarity upload one image with local image
-        const image1 = req.file.path;   
+        const image1 = req.file.path;
         const img1 = await canvas.loadImage(image1)
         let bestMatch = null;
         let savedId = null;
@@ -113,13 +114,13 @@ app.post('/loginWithImage', upload.single('images'), async (req, res) => {
         const faceMatcher = new faceApi.FaceMatcher(results)
         // load labeledFaceDescriptors from file json to compare
         const file = fs.readFileSync('./labeledFaceDescriptors.json');
-        if(file) {
+        if (file) {
             const parseToObject = JSON.parse(file);
-            for(let i = 0; i < parseToObject.length; i++) {
+            for (let i = 0; i < parseToObject.length; i++) {
                 // compare similarity 
                 // Error: arr1 and arr2 must have the same length
                 const data = faceMatcher.findBestMatch(parseToObject[i].descriptors[0])
-                if(data.distance < 0.5 ) {
+                if (data.distance < 0.5) {
                     bestMatch = data;
                     savedId = parseToObject[i].label;
                     console.log(data)
@@ -127,23 +128,25 @@ app.post('/loginWithImage', upload.single('images'), async (req, res) => {
                 }
             }
         }
-        if(bestMatch !== null) {
+        if (bestMatch !== null) {
             console.log(bestMatch)
-            const findUser = await usermodel.findOne({faceID: savedId});
+            const findUser = await usermodel.findOne({ faceID: savedId });
             console.log(findUser)
             const jwt_token = jwt.sign(
                 {
-                   _id: findUser._id,
+                    _id: findUser._id,
                 },
                 'secret',
                 {
                     expiresIn: '1h'
                 }
             )
-            return res.status(200).json({ message: {
-                userName: findUser.username,
-                jwt_token: jwt_token
-            }})
+            return res.status(200).json({
+                message: {
+                    userName: findUser.username,
+                    jwt_token: jwt_token
+                }
+            })
         }
         return res.status(200).json({ message: null })
     } catch (e) {
@@ -165,13 +168,15 @@ app.post('/loginWithPassword', async (req, res) => {
     }
     const jwt_token = jwt.sign({
         _id: userName._id,
-    },"secret", {
+    }, "secret", {
         expiresIn: '1h'
     })
-    return res.status(200).json({ message: {
-        userName: userName.username,
-        jwt_token: jwt_token
-    }})
+    return res.status(200).json({
+        message: {
+            userName: userName.username,
+            jwt_token: jwt_token
+        }
+    })
 });
 app.listen(5001, () => console.log('Server started on port 3000'));
 
@@ -209,8 +214,13 @@ wss.on('connection', function connection(ws) {
         try {
 
             const messageObj = JSON.parse(message);
+            // MessageObj type
+            // { type: 'message', id: '1', device1: 1, device2: 0, device3: 0, device4: 0, device5: 0, device6: 0 }
+            // {type: ping}
             // send to this device
+            if(messageObj.type === "message"){
             const deviceObj = mapDeviceToObj.get(messageObj.id);
+
             if (deviceObj) {
                 mapDeviceToObj.set(messageObj.id, messageObj);
                 // send to all device current device alive
@@ -231,11 +241,14 @@ wss.on('connection', function connection(ws) {
             } else {
                 ws.send("Not found device")
             }
+        }else if(messageObj.type === "ping"){
+            ws.isAlive = true;
+            ws.send("pong")
+        }
         } catch (e) {
             ws.send("Not found device")
         }
     });
-
     // disconnect event
     ws.on('close', function close() {
         const id = objToMapDevice.get(ws);
@@ -255,4 +268,36 @@ wss.on('connection', function connection(ws) {
             }
         });
     });
+    // check current device alive
+
+    // check device alive
+    setInterval(function ping() {
+        wss.clients.forEach(function each(ws) {
+            if (ws.isAlive === false) {
+                const id = objToMapDevice.get(ws);
+                if (!id) {
+                    return
+                }
+                mapDeviceToObj.delete(id);
+                objToMapDevice.delete(ws);
+                // send to all device current device alive
+                const allDevice = [];
+                for (let [key, value] of mapDeviceToObj) {
+                    allDevice.push(value);
+                }
+                wss.clients.forEach(function each(client) {
+                    if (client.readyState === ws.OPEN) {
+                        if (!objToMapDevice.get(client)) {
+
+                            client.send(JSON.stringify(allDevice));
+                        }
+                    }
+                });
+                return ws.terminate();
+            }
+            ws.isAlive = false;
+        });
+    }, 30000);
+
+
 });
