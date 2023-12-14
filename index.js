@@ -211,9 +211,11 @@ wss.on('connection', function connection(ws) {
     }
     ws.on('message', function incoming(message) {
         // update obj
+        
         try {
 
             const messageObj = JSON.parse(message);
+            console.log(messageObj)
             // MessageObj type
             // { type: 'message', id: '1', device1: 1, device2: 0, device3: 0, device4: 0, device5: 0, device6: 0 }
             // {type: ping}
