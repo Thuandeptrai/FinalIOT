@@ -178,7 +178,7 @@ app.post('/loginWithPassword', async (req, res) => {
         }
     })
 });
-app.listen(5001, () => console.log('Server started on port 3000'));
+app.listen(5010, () => console.log('Server started on port 3000'));
 
 wss.on('connection', function connection(ws) {
     // get Sec-Websocket-Protocol from client
