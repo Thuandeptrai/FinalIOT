@@ -57,7 +57,7 @@ const defaultObj = (id) => {
         device4: 0,
         device5: 0,
         device6: 0,
-        isAlive: trueb
+        isAlive: true
     }
 }
 // implement facejs api
