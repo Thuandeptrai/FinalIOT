@@ -275,35 +275,36 @@ wss.on('connection', function connection(ws) {
     });
     // check current device alive
     // clear interlval and create new interval
-    const interval = setInterval(function ping() {
-        wss.clients.forEach(function each(ws) {
-            console.log(ws.isAlive)
-            if (ws.isAlive === false) {
-                const id = objToMapDevice.get(ws);
-                if (!id) {
-                    return
-                }
-                mapDeviceToObj.delete(id);
-                objToMapDevice.delete(ws);
-                // send to all device current device alive
-                const allDevice = [];
-                for (let [key, value] of mapDeviceToObj) {
-                    allDevice.push(value);
-                }
-                wss.clients.forEach(function each(client) {
-                    if (client.readyState === ws.OPEN && client !== ws) {
-                        if (!objToMapDevice.get(client)) {
-
-                            client.send(JSON.stringify(allDevice));
-                        }
-                    }
-                });
-                return ws.terminate();
-            }
-            ws.isAlive = false;
-        });
-    }, 10000);
-    interval();
+  
         
 
 });
+const interval = setInterval(function ping() {
+    wss.clients.forEach(function each(ws) {
+        console.log(ws.isAlive)
+        if (ws.isAlive === false) {
+            const id = objToMapDevice.get(ws);
+            if (!id) {
+                return
+            }
+            mapDeviceToObj.delete(id);
+            objToMapDevice.delete(ws);
+            // send to all device current device alive
+            const allDevice = [];
+            for (let [key, value] of mapDeviceToObj) {
+                allDevice.push(value);
+            }
+            wss.clients.forEach(function each(client) {
+                if (client.readyState === ws.OPEN && client !== ws) {
+                    if (!objToMapDevice.get(client)) {
+
+                        client.send(JSON.stringify(allDevice));
+                    }
+                }
+            });
+            return ws.terminate();
+        }
+        ws.isAlive = false;
+    });
+}, 10000);
+interval();
