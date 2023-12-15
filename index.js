@@ -274,10 +274,8 @@ wss.on('connection', function connection(ws) {
         });
     });
     // check current device alive
-
-    // check device alive recursive set time out
-
-    const myFunc = () => {
+    // clear interlval and create new interval
+    const interval = setInterval(function ping() {
         wss.clients.forEach(function each(ws) {
             console.log(ws.isAlive)
             if (ws.isAlive === false) {
@@ -293,7 +291,7 @@ wss.on('connection', function connection(ws) {
                     allDevice.push(value);
                 }
                 wss.clients.forEach(function each(client) {
-                    if (client.readyState === ws.OPEN && client!==ws) {
+                    if (client.readyState === ws.OPEN && client !== ws) {
                         if (!objToMapDevice.get(client)) {
 
                             client.send(JSON.stringify(allDevice));
@@ -304,7 +302,8 @@ wss.on('connection', function connection(ws) {
             }
             ws.isAlive = false;
         });
-        setTimeout(myFunc, 10000);
-    };
-    setTimeout(myFunc, 10000);
+    }, 10000);
+    interval();
+        
+
 });
