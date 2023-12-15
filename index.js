@@ -279,7 +279,7 @@ wss.on('connection', function connection(ws) {
         
 
 });
-const interval = setInterval(function ping() {
+ setInterval(function ping() {
     wss.clients.forEach(function each(ws) {
         console.log(ws.isAlive)
         if (ws.isAlive === false) {
@@ -307,4 +307,3 @@ const interval = setInterval(function ping() {
         ws.isAlive = false;
     });
 }, 10000);
-interval();
