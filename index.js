@@ -186,6 +186,7 @@ wss.on('connection', function connection(ws) {
     // get Sec-Websocket-Protocol from client
     const device = ws.protocol;
     if (device === "device") {
+        ws.isAlive = true;
         const id = uuid.v4();
         const obj = defaultObj(id);
         mapDeviceToObj.set(id, obj);
@@ -278,6 +279,7 @@ wss.on('connection', function connection(ws) {
 
     const myFunc = () => {
         wss.clients.forEach(function each(ws) {
+            console.log(ws.isAlive)
             if (ws.isAlive === false) {
                 const id = objToMapDevice.get(ws);
                 if (!id) {
