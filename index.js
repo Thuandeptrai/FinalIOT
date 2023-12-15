@@ -211,7 +211,7 @@ wss.on('connection', function connection(ws) {
     }
     ws.on('message', function incoming(message) {
         // update obj
-        
+
         try {
 
             const messageObj = JSON.parse(message);
@@ -220,33 +220,33 @@ wss.on('connection', function connection(ws) {
             // { type: 'message', id: '1', device1: 1, device2: 0, device3: 0, device4: 0, device5: 0, device6: 0 }
             // {type: ping}
             // send to this device
-            if(messageObj.type === "message"){
-            const deviceObj = mapDeviceToObj.get(messageObj.id);
+            if (messageObj.type === "message") {
+                const deviceObj = mapDeviceToObj.get(messageObj.id);
 
-            if (deviceObj) {
-                mapDeviceToObj.set(messageObj.id, messageObj);
-                // send to all device current device alive
-                const allDevice = [];
-                for (let [key, value] of mapDeviceToObj) {
-                    allDevice.push(value);
-                }
-                wss.clients.forEach(function each(client) {
-                    if (client.readyState === ws.OPEN) {
-                        if (!objToMapDevice.get(client)) {
-
-                            client.send(JSON.stringify(allDevice));
-                        } else if (objToMapDevice.get(client) === messageObj.id) {
-                            client.send(JSON.stringify(messageObj));
-                        }
+                if (deviceObj) {
+                    mapDeviceToObj.set(messageObj.id, messageObj);
+                    // send to all device current device alive
+                    const allDevice = [];
+                    for (let [key, value] of mapDeviceToObj) {
+                        allDevice.push(value);
                     }
-                });
-            } else {
-                ws.send("Not found device")
+                    wss.clients.forEach(function each(client) {
+                        if (client.readyState === ws.OPEN) {
+                            if (!objToMapDevice.get(client)) {
+
+                                client.send(JSON.stringify(allDevice));
+                            } else if (objToMapDevice.get(client) === messageObj.id) {
+                                client.send(JSON.stringify(messageObj));
+                            }
+                        }
+                    });
+                } else {
+                    ws.send("Not found device")
+                }
+            } else if (messageObj.type === "ping") {
+                ws.isAlive = true;
+                ws.send("pong")
             }
-        }else if(messageObj.type === "ping"){
-            ws.isAlive = true;
-            ws.send("pong")
-        }
         } catch (e) {
             ws.send("Not found device")
         }
@@ -272,8 +272,9 @@ wss.on('connection', function connection(ws) {
     });
     // check current device alive
 
-    // check device alive
-    setInterval(function ping() {
+    // check device alive recursive set time out
+
+    const myFunc = () => {
         wss.clients.forEach(function each(ws) {
             if (ws.isAlive === false) {
                 const id = objToMapDevice.get(ws);
@@ -299,7 +300,7 @@ wss.on('connection', function connection(ws) {
             }
             ws.isAlive = false;
         });
-    }, 30000);
-
-
+        setTimeout(myFunc, 10000);
+    };
+    setTimeout(myFunc, 10000);
 });

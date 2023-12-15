@@ -6,7 +6,7 @@
  */
 
 #include <Arduino.h>
-
+#include <string>
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <WiFiClientSecure.h>
@@ -20,6 +20,20 @@ WiFiMulti WiFiMulti;
 WebSocketsClient webSocket;
 
 #define USE_SERIAL Serial
+
+// call back send ping to server
+void timerIsr()
+{
+  static unsigned long last_time = millis();
+  if (millis() - last_time > 1000)
+  {
+    last_time = millis();
+    webSocket.sendTXT("{\"type\":\"ping\"}\n");
+  }
+}
+
+
+
 
 void hexdump(const void *mem, uint32_t len, uint8_t cols = 16) {
 	const uint8_t* src = (const uint8_t*) mem;
@@ -92,7 +106,7 @@ void setup() {
 		USE_SERIAL.flush();
 		delay(1000);
 	}
-
+;
  
 	// server address, port and URL
 	webSocket.begin("159.223.71.166", 8120,"/","device");
@@ -110,10 +124,8 @@ void setup() {
 
 void loop() {
     
-
-
+    timerIsr();
   // ping server every 1000 milliseconds
 	webSocket.loop();
-  webSocket.sendTXT('{"type":"ping"}');
 
 }
