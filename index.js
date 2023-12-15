@@ -15,6 +15,7 @@ const bcryptjs = require('bcryptjs');
 const usermodel = require('./model/usermodel');
 const mongoose = require('mongoose');
 const { createUser } = require('./controller/user.controller');
+const keyRouter = require('./router/key.router');
 mongoose.connect('mongodb://127.0.0.1:27017/face', { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
     console.log("connect mongodb success")
 }).catch((err) => {
@@ -178,6 +179,7 @@ app.post('/loginWithPassword', async (req, res) => {
         }
     })
 });
+app.use('/key', keyRouter);
 app.listen(5010, () => console.log('Server started on port 3000'));
 
 wss.on('connection', function connection(ws) {
@@ -302,5 +304,5 @@ wss.on('connection', function connection(ws) {
         });
         setTimeout(myFunc, 10000);
     };
-    setTimeout(myFunc, 10000);
+    myFunc();
 });
