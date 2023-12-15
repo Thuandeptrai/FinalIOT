@@ -293,7 +293,7 @@ wss.on('connection', function connection(ws) {
                     allDevice.push(value);
                 }
                 wss.clients.forEach(function each(client) {
-                    if (client.readyState === ws.OPEN) {
+                    if (client.readyState === ws.OPEN && client!==ws) {
                         if (!objToMapDevice.get(client)) {
 
                             client.send(JSON.stringify(allDevice));
@@ -306,5 +306,5 @@ wss.on('connection', function connection(ws) {
         });
         setTimeout(myFunc, 10000);
     };
-    myFunc();
+    setTimeout(myFunc, 10000);
 });
