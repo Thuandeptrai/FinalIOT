@@ -10,6 +10,7 @@ const bodyParser = require('body-parser');
 const canvas = require('canvas');
 const faceApi = require('face-api.js');
 const multer = require('multer');
+const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs');
 const usermodel = require('./model/usermodel');
@@ -42,6 +43,9 @@ const app = express();
 app.use(express.static('public'));
 // allow json
 app.use(bodyParser.json());
+app.use(cors({
+    origin: '*'
+}));
 // allow url encoded
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -112,9 +116,14 @@ app.post('/loginWithImage', upload.single('images'), async (req, res) => {
         let bestMatch = null;
         let savedId = null;
         const results = await faceApi.detectAllFaces(img1).withFaceLandmarks().withFaceDescriptors()
+        if(results.length === 0){
+            return res.status(401).json({ message: null })
+        }
         const faceMatcher = new faceApi.FaceMatcher(results)
+       
         // load labeledFaceDescriptors from file json to compare
         const file = fs.readFileSync('./labeledFaceDescriptors.json');
+        
         if (file) {
             const parseToObject = JSON.parse(file);
             for (let i = 0; i < parseToObject.length; i++) {
