@@ -46,7 +46,14 @@ class KeyController {
             res.status(500).json(err);
         }
     }
-
+    async getOne(req, res) {
+        try {
+            const key = await keyModel.findById(req.params.id);
+            res.status(200).json(key);
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    }
     async delete(req, res) {
         try {
             await keyModel.findByIdAndDelete(req.params.id);

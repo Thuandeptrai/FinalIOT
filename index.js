@@ -193,9 +193,7 @@ wss.on("connection", async function connection(ws) {
   const device = ws.protocol;
   // check find key by Sec-Websocket-Protocol
   console.log(device);
-  const findKey = await key.find({
-    key: device
-  })
+  const findKey = await key.findById(device)
   console.log(findKey);
   if(findKey !== null && findKey.isActive === true) {
     ws.send("This key is already in use");
@@ -276,7 +274,7 @@ wss.on("connection", async function connection(ws) {
   ws.on("close", async function close() {
     const id = objToMapDevice.get(ws);
     // update status isAlive
-    const update = await key.findOneAndUpdate({ key: ws.protocol }, { isActive: false });
+    const update = await key.findByIdAndUpdate(ws.protocol, { isActive: false });
     mapDeviceToObj.delete(id);
     objToMapDevice.delete(ws);
     // send to all device current device alive
@@ -303,8 +301,7 @@ setInterval(function ping() {
       if (!id) {
         return;
       }
-      const updateDevice = await key.findOneAndUpdate({ key: ws.protocol }, { isActive: false });
-
+      const updateDevice = await key.findByIdAndUpdate(ws.protocol, { isActive: false });
       mapDeviceToObj.delete(id);
       objToMapDevice.delete(ws);
       // send to all device current device alive
