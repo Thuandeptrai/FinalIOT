@@ -274,7 +274,9 @@ wss.on("connection", async function connection(ws) {
   ws.on("close", async function close() {
     const id = objToMapDevice.get(ws);
     // update status isAlive
-    const update = await key.findOneAndUpdate(ws.protocol, { isActive: false });
+    const update = await key.findOneAndUpdate({
+      key: ws.protocol
+    }, { isActive: false });
     mapDeviceToObj.delete(id);
     objToMapDevice.delete(ws);
     // send to all device current device alive
@@ -301,7 +303,9 @@ setInterval(function ping() {
       if (!id) {
         return;
       }
-      const updateDevice = await key.findOneAndUpdate(ws.protocol, { isActive: false });
+      const updateDevice = await key.findOneAndUpdate({
+        key: ws.protocol
+      }, { isActive: false });
       mapDeviceToObj.delete(id);
       objToMapDevice.delete(ws);
       // send to all device current device alive
