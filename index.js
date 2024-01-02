@@ -192,9 +192,9 @@ wss.on("connection", async function connection(ws) {
   // get Sec-Websocket-Protocol from client
   const device = ws.protocol;
   // check find key by Sec-Websocket-Protocol
-  const findKey =   await key.findOne({
-    key: device
-  })
+  console.log(device);
+  const findKey = await key.findById(device);
+  console.log(findKey);
   if(findKey !== null && findKey.isActive === true) {
     ws.send("This key is already in use");
     return ws.terminate();
