@@ -194,7 +194,8 @@ wss.on("connection", async function connection(ws) {
   // check find key by Sec-Websocket-Protocol
   console.log(device);
   const findKey = await key.findById(
-    mongoose.Types.ObjectId(device)
+    // find by _id
+    new mongoose.Types.ObjectId(device)
   )
   console.log(findKey);
   if(findKey !== null && findKey.isActive === true) {
