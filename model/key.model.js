@@ -10,6 +10,10 @@ const keySchema = mongoose.Schema({
             return Math.random().toString(36).substr(2, 5);
         }
     },
+    isActive: {
+        type: Boolean,
+        default: false
+    }
 });
 
 module.exports = mongoose.model('Key', keySchema);
