@@ -105,88 +105,85 @@ app.post("/signUpWithImage", upload.single("images"), async (req, res) => {
   // signup face and label for face recognition
   createUser(req, res);
 });
-app.post("/loginWithImage", upload.single("images"), async (req, res) => {
-  try {
-    // compare similarity upload one image with local image
-    const image1 = req.file.path;
-    const img1 = await canvas.loadImage(image1);
-    let bestMatch = null;
-    let savedId = null;
-    const results = await faceApi.detectAllFaces(img1).withFaceLandmarks().withFaceDescriptors();
-    if (results.length === 0) {
-      return res.status(401).json({ message: null });
-    }
-    const faceMatcher = new faceApi.FaceMatcher(results);
-
-    // load labeledFaceDescriptors from file json to compare
-    const file = fs.readFileSync("./labeledFaceDescriptors.json");
-
-    if (file) {
-      const parseToObject = JSON.parse(file);
-      for (let i = 0; i < parseToObject.length; i++) {
-        // compare similarity
-        // Error: arr1 and arr2 must have the same length
-        const data = faceMatcher.findBestMatch(parseToObject[i].descriptors[0]);
-        if (data.distance < 0.5) {
-          bestMatch = data;
-          savedId = parseToObject[i].label;
-          console.log(data);
-          break;
+app.post('/loginWithImage', upload.single('images'), async (req, res) => {
+    try {
+        // compare similarity upload one image with local image
+        const image1 = req.file.path;
+        const img1 = await canvas.loadImage(image1)
+        let bestMatch = null;
+        let savedId = null;
+        const results = await faceApi.detectAllFaces(img1).withFaceLandmarks().withFaceDescriptors()
+        if(results.length === 0){
+            return res.status(401).json({ message: null })
         }
-      }
-    }
-    if (bestMatch !== null) {
-      console.log(bestMatch);
-      const findUser = await usermodel.findOne({ faceID: savedId });
-      console.log(findUser);
-      const jwt_token = jwt.sign(
-        {
-          _id: findUser._id
-        },
-        "secret",
-        {
-          expiresIn: "1h"
+        const faceMatcher = new faceApi.FaceMatcher(results)
+       
+        // load labeledFaceDescriptors from file json to compare
+        const file = fs.readFileSync('./labeledFaceDescriptors.json');
+        
+        if (file) {
+            const parseToObject = JSON.parse(file);
+            for (let i = 0; i < parseToObject.length; i++) {
+                // compare similarity 
+                // Error: arr1 and arr2 must have the same length
+                const data = faceMatcher.findBestMatch(parseToObject[i].descriptors[0])
+                if (data.distance < 0.5) {
+                    bestMatch = data;
+                    savedId = parseToObject[i].label;
+                    console.log(data)
+                    break;
+                }
+            }
         }
-      );
-      return res.status(200).json({
+        if (bestMatch !== null) {
+            console.log(bestMatch)
+            const findUser = await usermodel.findOne({ faceID: savedId });
+            console.log(findUser)
+            const jwt_token = jwt.sign(
+                {
+                    _id: findUser._id,
+                },
+                'secret',
+                {
+                    expiresIn: '1h'
+                }
+            )
+            return res.status(200).json({
+                message: {
+                    userName: findUser.username,
+                    jwt_token: jwt_token
+                }
+            })
+        }
+        return res.status(401).json({ message: null })
+    } catch (e) {
+        console.log(e)
+    }
+
+})
+app.post('/loginWithPassword', async (req, res) => {
+    console.log(req.body)
+    const { username, password } = req.body;
+    console.log(username)
+    const userName = await usermodel.findOne({ username: username });
+    if (!userName) {
+        return res.status(400).json({ message: "username not found" })
+    }
+    const checkPassword = bcryptjs.compareSync(password, userName.password);
+    if (!checkPassword) {
+        return res.status(400).json({ message: "password invalid" })
+    }
+    const jwt_token = jwt.sign({
+        _id: userName._id,
+    }, "secret", {
+        expiresIn: '1h'
+    })
+    return res.status(200).json({
         message: {
-          userName: findUser.username,
-          jwt_token: jwt_token
+            userName: userName.username,
+            jwt_token: jwt_token
         }
-      });
-    }
-    return res.status(401).json({ message: null });
-  } catch (e) {
-    console.log(e);
-  }
-});
-app.post("/loginWithPassword", async (req, res) => {
-  console.log(req.body);
-  const { username, password } = req.body;
-  console.log(username);
-  const userName = await usermodel.findOne({ username: username });
-  if (!userName) {
-    return res.status(400).json({ message: "username not found" });
-  }
-  const checkPassword = bcryptjs.compareSync(password, userName.password);
-  if (!checkPassword) {
-    return res.status(400).json({ message: "password invalid" });
-  }
-  const jwt_token = jwt.sign(
-    {
-      _id: userName._id
-    },
-    "secret",
-    {
-      expiresIn: "1h"
-    }
-  );
-  return res.status(200).json({
-    message: {
-      userName: userName.username,
-      jwt_token: jwt_token
-    }
-  });
+    })
 });
 app.use("/key", keyRouter);
 app.listen(5010, () => console.log("Server started on port 3000"));
