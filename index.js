@@ -31,8 +31,8 @@ const storage = multer.diskStorage({
     cb(null, "./uploads/");
   },
   filename: function (req, file, cb) {
-    const fileName = file.originalname.split('.');
-    cb(null, fileName[0] + '-' + Date.now() + '.' + fileName[1])
+    const fileName = file.originalname.split(".");
+    cb(null, fileName[0] + "-" + Date.now() + "." + fileName[1]);
   }
 });
 
@@ -105,85 +105,88 @@ app.post("/signUpWithImage", upload.single("images"), async (req, res) => {
   // signup face and label for face recognition
   createUser(req, res);
 });
-app.post('/loginWithImage', upload.single('images'), async (req, res) => {
-    try {
-        // compare similarity upload one image with local image
-        const image1 = req.file.path;
-        const img1 = await canvas.loadImage(image1)
-        let bestMatch = null;
-        let savedId = null;
-        const results = await faceApi.detectAllFaces(img1).withFaceLandmarks().withFaceDescriptors()
-        if(results.length === 0){
-            return res.status(401).json({ message: null })
-        }
-        const faceMatcher = new faceApi.FaceMatcher(results)
-       
-        // load labeledFaceDescriptors from file json to compare
-        const file = fs.readFileSync('./labeledFaceDescriptors.json');
-        
-        if (file) {
-            const parseToObject = JSON.parse(file);
-            for (let i = 0; i < parseToObject.length; i++) {
-                // compare similarity 
-                // Error: arr1 and arr2 must have the same length
-                const data = faceMatcher.findBestMatch(parseToObject[i].descriptors[0])
-                if (data.distance < 0.5) {
-                    bestMatch = data;
-                    savedId = parseToObject[i].label;
-                    console.log(data)
-                    break;
-                }
-            }
-        }
-        if (bestMatch !== null) {
-            console.log(bestMatch)
-            const findUser = await usermodel.findOne({ faceID: savedId });
-            console.log(findUser)
-            const jwt_token = jwt.sign(
-                {
-                    _id: findUser._id,
-                },
-                'secret',
-                {
-                    expiresIn: '1h'
-                }
-            )
-            return res.status(200).json({
-                message: {
-                    userName: findUser.username,
-                    jwt_token: jwt_token
-                }
-            })
-        }
-        return res.status(401).json({ message: null })
-    } catch (e) {
-        console.log(e)
+app.post("/loginWithImage", upload.single("images"), async (req, res) => {
+  try {
+    // compare similarity upload one image with local image
+    const image1 = req.file.path;
+    const img1 = await canvas.loadImage(image1);
+    let bestMatch = null;
+    let savedId = null;
+    const results = await faceApi.detectAllFaces(img1).withFaceLandmarks().withFaceDescriptors();
+    if (results.length === 0) {
+      return res.status(401).json({ message: null });
     }
+    const faceMatcher = new faceApi.FaceMatcher(results);
 
-})
-app.post('/loginWithPassword', async (req, res) => {
-    console.log(req.body)
-    const { username, password } = req.body;
-    console.log(username)
-    const userName = await usermodel.findOne({ username: username });
-    if (!userName) {
-        return res.status(400).json({ message: "username not found" })
-    }
-    const checkPassword = bcryptjs.compareSync(password, userName.password);
-    if (!checkPassword) {
-        return res.status(400).json({ message: "password invalid" })
-    }
-    const jwt_token = jwt.sign({
-        _id: userName._id,
-    }, "secret", {
-        expiresIn: '1h'
-    })
-    return res.status(200).json({
-        message: {
-            userName: userName.username,
-            jwt_token: jwt_token
+    // load labeledFaceDescriptors from file json to compare
+    const file = fs.readFileSync("./labeledFaceDescriptors.json");
+
+    if (file) {
+      const parseToObject = JSON.parse(file);
+      for (let i = 0; i < parseToObject.length; i++) {
+        // compare similarity
+        // Error: arr1 and arr2 must have the same length
+        const data = faceMatcher.findBestMatch(parseToObject[i].descriptors[0]);
+        if (data.distance < 0.5) {
+          bestMatch = data;
+          savedId = parseToObject[i].label;
+          console.log(data);
+          break;
         }
-    })
+      }
+    }
+    if (bestMatch !== null) {
+      console.log(bestMatch);
+      const findUser = await usermodel.findOne({ faceID: savedId });
+      console.log(findUser);
+      const jwt_token = jwt.sign(
+        {
+          _id: findUser._id
+        },
+        "secret",
+        {
+          expiresIn: "1h"
+        }
+      );
+      return res.status(200).json({
+        message: {
+          userName: findUser.username,
+          jwt_token: jwt_token
+        }
+      });
+    }
+    return res.status(401).json({ message: null });
+  } catch (e) {
+    console.log(e);
+  }
+});
+app.post("/loginWithPassword", async (req, res) => {
+  console.log(req.body);
+  const { username, password } = req.body;
+  console.log(username);
+  const userName = await usermodel.findOne({ username: username });
+  if (!userName) {
+    return res.status(400).json({ message: "username not found" });
+  }
+  const checkPassword = bcryptjs.compareSync(password, userName.password);
+  if (!checkPassword) {
+    return res.status(400).json({ message: "password invalid" });
+  }
+  const jwt_token = jwt.sign(
+    {
+      _id: userName._id
+    },
+    "secret",
+    {
+      expiresIn: "1h"
+    }
+  );
+  return res.status(200).json({
+    message: {
+      userName: userName.username,
+      jwt_token: jwt_token
+    }
+  });
 });
 app.use("/key", keyRouter);
 app.listen(5010, () => console.log("Server started on port 3000"));
@@ -195,15 +198,15 @@ wss.on("connection", async function connection(ws) {
   console.log(ws.protocol);
   const findKey = await key.findOne({ key: device });
   console.log(findKey);
-  if(findKey !== null && findKey.isActive === true) {
+  if (findKey !== null && findKey.isActive === true) {
     ws.send("This key is already in use");
     return ws.terminate();
   }
-  if(findKey !== null && findKey.isActive === false) {
+  if (findKey !== null && findKey.isActive === false) {
     findKey.isActive = true;
     await findKey.save();
   }
-    ws.send('Hello, client!'); // send message to client
+  ws.send("Hello, client!"); // send message to client
   if (findKey !== null) {
     ws.isAlive = true;
     const id = ws.protocol;
@@ -242,9 +245,14 @@ wss.on("connection", async function connection(ws) {
       // send to this device
       if (messageObj.type === "message") {
         let deviceObj = mapDeviceToObj.get(messageObj.id);
-        // update deviceObj by messageObj i device1: 1 update only device1
         if (deviceObj) {
-          deviceObj[messageObj.key] = messageObj.value;
+          // update deviceObj by messageObj i device1: 1 update only device1
+          for (let key in messageObj) {
+            if (key !== "type" && key !== "id") {
+              deviceObj[key] = messageObj[key];
+            }
+          }
+
           mapDeviceToObj.set(messageObj.id, deviceObj);
           // send to all device current device alive
           const allDevice = [];
@@ -275,9 +283,12 @@ wss.on("connection", async function connection(ws) {
   ws.on("close", async function close() {
     const id = objToMapDevice.get(ws);
     // update status isAlive
-    const update = await key.findOneAndUpdate({
-      key: ws.protocol
-    }, { isActive: false });
+    const update = await key.findOneAndUpdate(
+      {
+        key: ws.protocol
+      },
+      { isActive: false }
+    );
     mapDeviceToObj.delete(id);
     objToMapDevice.delete(ws);
     // send to all device current device alive
@@ -304,9 +315,12 @@ setInterval(function ping() {
       if (!id) {
         return;
       }
-      const updateDevice = await key.findOneAndUpdate({
-        key: ws.protocol
-      }, { isActive: false });
+      const updateDevice = await key.findOneAndUpdate(
+        {
+          key: ws.protocol
+        },
+        { isActive: false }
+      );
       mapDeviceToObj.delete(id);
       objToMapDevice.delete(ws);
       // send to all device current device alive
