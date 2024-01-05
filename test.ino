@@ -4,17 +4,6 @@
  *  Created on: 12.10.2023
  *
  */
-
-#include <Arduino.h>
-#include <string>
-#include <WiFi.h>
-#include <WiFiMulti.h>
-#include <WiFiClientSecure.h>
-
-#include <WebSocketsClient.h>
-
-const int buttonPin = 2; // the number of the pushbutton pin
-
 #define LED_awning 17
 #define LED_kitchen 19
 #define LED_Fan 16
@@ -27,6 +16,17 @@ unsigned long interval = 1000;
 unsigned long interval1 = 5000;
 unsigned long previousMillis = 0;
 unsigned long previousMillis1 = 0;
+int led_state1 = 0;
+
+#include <Arduino.h>
+#include <string>
+#include <WiFi.h>
+#include <WiFiMulti.h>
+#include <WiFiClientSecure.h>
+
+#include <WebSocketsClient.h>
+
+const int buttonPin = 2; // the number of the pushbutton pin
 
 WiFiMulti WiFiMulti;
 WebSocketsClient webSocket;
@@ -107,7 +107,7 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 void setup()
 {
 	// USE_SERIAL.begin(921600);
-	Serial.begin(115200);
+	Serial.begin(115200); // Start serial communication
 	pinMode(LED_Fan, OUTPUT);
 	Serial.print("Connecting to WiFi");
 	WiFi.begin("Thuan", "thuan0023");
@@ -125,11 +125,11 @@ void setup()
 	};
 
 	// server address, port and URL
-	webSocket.begin("159.223.71.166", 8120, "/","x5nr9");
+	webSocket.begin("159.223.71.166", 8120, "/", "x5nr9");
 
 	// event handler
 	webSocket.onEvent(webSocketEvent);
-	 
+
 	// use HTTP Basic Authorization this is optional remove if not needed
 	// webSocket.setAuthorization("user", "Password");
 
@@ -139,13 +139,13 @@ void setup()
 
 void loop()
 {
-	int  sensorValue = analogRead(gasSensor);
+	int sensorValue = analogRead(gasSensor);
 	float voltage = (float)sensorValue / 1024 * 5.0;
 
 	int gasValue = map(voltage, 0, 5, 0, 30);
 
 	unsigned long now = millis();
-	if (now - previousMillis >= interval)	
+	if (now - previousMillis >= interval)
 	{
 		previousMillis = now;
 		Serial.print("gasValue: ");
@@ -154,26 +154,23 @@ void loop()
 		Serial.println(voltage);
 		Serial.print("sensorValue: ");
 		Serial.println(sensorValue);
-		if (gasValue >= 100)
-		{
-			unsigned long now1 = millis();
-			if (now1 - previousMillis1 >= interval1)
-			{
-				previousMillis1 = now1;
-				digitalWrite(LED_Fan, HIGH); // Turn on the LED if gas concentration is high
-				webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"x5nr9\",\"device1\": 1}");
-				Serial.println("Gas detected!");
-			}
-		}
+	}
+	unsigned long now1 = millis();
+	if (gasValue >= 100)
+	{
+		digitalWrite(LED_Fan, HIGH); // Turn on the LED if gas concentration is high
+		led_state1 = ~led_state1;
+		Serial.println("Gas detected!");
+		websocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":1}");
 	}
 	else
 	{
-			digitalWrite(LED_Fan, LOW); // Turn off the LED if gas concentration is low
-				webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"x5nr9\",\"device1\": 0}");
-
+		digitalWrite(LED_Fan, LOW);
+		websocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":0}");
+		 // Turn off the LED if gas concentration is low
 	}
 	timerIsr();
 	// ping server every 1000 milliseconds
-	
+
 	webSocket.loop();
 }

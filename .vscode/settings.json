@@ -15,6 +15,7 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "xlocinfo": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "string": "cpp"
     }
 }
