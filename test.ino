@@ -27,7 +27,6 @@ unsigned long interval = 1000;
 unsigned long interval1 = 5000;
 unsigned long previousMillis = 0;
 unsigned long previousMillis1 = 0;
-string protocol = "ey0da" ;
 
 WiFiMulti WiFiMulti;
 WebSocketsClient webSocket;
@@ -146,7 +145,7 @@ void loop()
 	int gasValue = map(voltage, 0, 5, 0, 30);
 
 	unsigned long now = millis();
-	if (now - previousMillis >= interval)
+	if (now - previousMillis >= interval)	
 	{
 		previousMillis = now;
 		Serial.print("gasValue: ");
@@ -169,7 +168,7 @@ void loop()
 	}
 	else
 	{
-		digitalWrite(LED_Fan, LOW); // Turn off the LED if gas concentration is low
+			digitalWrite(LED_Fan, LOW); // Turn off the LED if gas concentration is low
 				webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"x5nr9\",\"device1\": 0}");
 
 	}
