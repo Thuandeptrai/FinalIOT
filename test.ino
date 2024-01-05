@@ -125,7 +125,7 @@ void setup()
 	};
 
 	// server address, port and URL
-	webSocket.begin("159.223.71.166", 8120, "/","ey0da");
+	webSocket.begin("159.223.71.166", 8120, "/","x5nr9");
 
 	// event handler
 	webSocket.onEvent(webSocketEvent);
@@ -164,6 +164,7 @@ void loop()
 			{
 				previousMillis1 = now1;
 				digitalWrite(LED_Fan, HIGH); // Turn on the LED if gas concentration is high
+				webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"x5nr9\",\"device1\": 1}");
 				Serial.println("Gas detected!");
 			}
 		}
@@ -171,6 +172,8 @@ void loop()
 	else
 	{
 		digitalWrite(LED_Fan, LOW); // Turn off the LED if gas concentration is low
+				webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"x5nr9\",\"device1\": 0}");
+
 	}
 	webSocket.loop();
 }
