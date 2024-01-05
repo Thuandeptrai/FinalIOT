@@ -25,10 +25,6 @@ unsigned long previousMillis = 0;
 unsigned long previousMillis1 = 0;
 int led_state1 = 0;
 
-
-
-const int buttonPin = 2; // the number of the pushbutton pin
-
 WiFiMulti WiFiMulti;
 WebSocketsClient webSocket;
 
@@ -108,16 +104,16 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 void setup()
 {
 	// USE_SERIAL.begin(921600);
-	Serial.begin(115200); // Start serial communication
+	USE_SERIAL.begin(115200); // Start serial communication
 	pinMode(LED_Fan, OUTPUT);
-	Serial.print("Connecting to WiFi");
+	USE_SERIAL.print("Connecting to WiFi");
 	WiFi.begin("Thuan", "thuan0023");
 	while (WiFi.status() != WL_CONNECTED)
 	{
 		delay(100);
-		Serial.print(".");
+		USE_SERIAL.print(".");
 	}
-	Serial.println(" Connected!");
+	USE_SERIAL.println(" Connected!");
 	for (uint8_t t = 4; t > 0; t--)
 	{
 		USE_SERIAL.printf("[SETUP] BOOT WAIT %d...\n", t);
@@ -162,16 +158,17 @@ void loop()
 		digitalWrite(LED_Fan, HIGH); // Turn on the LED if gas concentration is high
 		led_state1 = ~led_state1;
 		Serial.println("Gas detected!");
-		websocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":1}");
+		webSocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":1}");
 	}
 	else
 	{
 		digitalWrite(LED_Fan, LOW);
-		websocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":0}");
+		webSocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":0}");
 		 // Turn off the LED if gas concentration is low
 	}
-	timerIsr();
+	// timerIsr();
 	// ping server every 1000 milliseconds
+		webSocket.sendTXT("{\"type\":\"ping\"}\n");
 
 	webSocket.loop();
 }
