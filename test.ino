@@ -72,8 +72,8 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 
 		break;
 	case WStype_TEXT:
-		//USE_SERIAL.printf("[WSc] get text: %s\n", payload);
-
+		USE_SERIAL.printf("[WSc] get text: %s\n", payload);
+		
 		// send message to server
 		// webSocket.sendTXT("message here");
 		break;
@@ -106,7 +106,7 @@ void setup()
 	// USE_SERIAL.begin(921600);
 	USE_SERIAL.begin(115200); // Start serial communication
 	USE_SERIAL.print("Connecting to WiFi");
-	WiFi.begin("Thuan", "thuan0023");
+	WiFi.begin("36 lau 2", "0345616001");
 	while (WiFi.status() != WL_CONNECTED)
 	{
 		USE_SERIAL.print(".");
