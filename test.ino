@@ -5,6 +5,7 @@
  *
  */
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <string>
 #include <WiFi.h>
 #include <WiFiMulti.h>
@@ -27,7 +28,6 @@ int led_state1 = 0;
 
 WiFiMulti WiFiMulti;
 WebSocketsClient webSocket;
-
 #define USE_SERIAL Serial
 
 // call back send ping to server
@@ -67,12 +67,27 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 		break;
 	case WStype_CONNECTED:
 		USE_SERIAL.printf("[WSc] Connected to url: %s\n", payload);
-
+		// deserializeJson(doc, payload);
+		const size_t capacity = JSON_OBJECT_SIZE(3) + 30;
+		DynamicJsonDocument doc(capacity);
+		// const char *json = "{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":1}";
+		deserializeJson(doc, payload);
+		JsonObject obj = doc.as<JsonObject>();
+		if(obj["type"] == "message"){
+			if(obj["id"] == "x5nr9"){
+				if(obj["device2"] == 1){
+					digitalWrite(LED_Fan, HIGH);
+				}
+				else{
+					digitalWrite(LED_Fan, LOW);
+				}
+			}
+		}
 		// send message to server when Connected
 
 		break;
 	case WStype_TEXT:
-		USE_SERIAL.printf("[WSc] get text: %s\n", payload);
+		//USE_SERIAL.printf("[WSc] get text: %s\n", payload);
 		
 		// send message to server
 		// webSocket.sendTXT("message here");
