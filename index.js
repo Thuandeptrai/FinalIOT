@@ -237,12 +237,13 @@ wss.on("connection", async function connection(ws) {
       const messageObj = JSON.parse(message);
       console.log(messageObj);
       // MessageObj type
-      // { type: 'message', id: '1', device1: 1, device2: 0, device3: 0, device4: 0, device5: 0, device6: 0 }
+      // { type: 'message',id device1: 1}
       // {type: ping}
       // send to this device
       if (messageObj.type === "message") {
-        const deviceObj = mapDeviceToObj.get(messageObj.id);
-
+        let deviceObj = mapDeviceToObj.get(messageObj.id);
+        // update deviceObj by messageObj i device1: 1 update only device1
+        deviceObj = { ...deviceObj, ...messageObj };
         if (deviceObj) {
           mapDeviceToObj.set(messageObj.id, messageObj);
           // send to all device current device alive
