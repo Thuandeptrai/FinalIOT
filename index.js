@@ -247,12 +247,12 @@ wss.on("connection", async function connection(ws) {
         let deviceObj = mapDeviceToObj.get(messageObj.id);
         if (deviceObj) {
           // update deviceObj by messageObj i device1: 1 update only device1
+          console.log(deviceObj);
           for (let key in messageObj) {
             if (key !== "type" && key !== "id") {
               deviceObj[key] = messageObj[key];
             }
           }
-
           mapDeviceToObj.set(messageObj.id, deviceObj);
           // send to all device current device alive
           const allDevice = [];
@@ -264,7 +264,7 @@ wss.on("connection", async function connection(ws) {
               if (!objToMapDevice.get(client)) {
                 client.send(JSON.stringify(allDevice));
               } else if (objToMapDevice.get(client) === messageObj.id) {
-                client.send(JSON.stringify(messageObj));
+                client.send(JSON.stringify(deviceObj));
               }
             }
           });
