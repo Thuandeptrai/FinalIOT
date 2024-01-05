@@ -108,7 +108,8 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 void setup()
 {
 	// USE_SERIAL.begin(921600);
-	Serial.begin(9600);
+	Serial.begin(115200);
+	pinMode(LED_Fan, OUTPUT);
 	Serial.print("Connecting to WiFi");
 	WiFi.begin("Thuan", "thuan0023");
 	while (WiFi.status() != WL_CONNECTED)
@@ -129,7 +130,7 @@ void setup()
 
 	// event handler
 	webSocket.onEvent(webSocketEvent);
-
+	 
 	// use HTTP Basic Authorization this is optional remove if not needed
 	// webSocket.setAuthorization("user", "Password");
 
@@ -139,10 +140,7 @@ void setup()
 
 void loop()
 {
-
-	timerIsr();
-	// ping server every 1000 milliseconds
-	nt sensorValue = analogRead(gasSensor);
+	int  sensorValue = analogRead(gasSensor);
 	float voltage = (float)sensorValue / 1024 * 5.0;
 
 	int gasValue = map(voltage, 0, 5, 0, 30);
@@ -175,5 +173,8 @@ void loop()
 				webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"x5nr9\",\"device1\": 0}");
 
 	}
+	timerIsr();
+	// ping server every 1000 milliseconds
+	
 	webSocket.loop();
 }
