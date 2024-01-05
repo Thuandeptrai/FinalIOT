@@ -4,6 +4,13 @@
  *  Created on: 12.10.2023
  *
  */
+#include <Arduino.h>
+#include <string>
+#include <WiFi.h>
+#include <WiFiMulti.h>
+#include <WiFiClientSecure.h>
+
+#include <WebSocketsClient.h>
 #define LED_awning 17
 #define LED_kitchen 19
 #define LED_Fan 16
@@ -18,13 +25,7 @@ unsigned long previousMillis = 0;
 unsigned long previousMillis1 = 0;
 int led_state1 = 0;
 
-#include <Arduino.h>
-#include <string>
-#include <WiFi.h>
-#include <WiFiMulti.h>
-#include <WiFiClientSecure.h>
 
-#include <WebSocketsClient.h>
 
 const int buttonPin = 2; // the number of the pushbutton pin
 
@@ -75,7 +76,7 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 
 		break;
 	case WStype_TEXT:
-		USE_SERIAL.printf("[WSc] get text: %s\n", payload);
+		//USE_SERIAL.printf("[WSc] get text: %s\n", payload);
 
 		// send message to server
 		// webSocket.sendTXT("message here");
