@@ -155,12 +155,12 @@ void loop()
 		digitalWrite(LED_Fan, HIGH); // Turn on the LED if gas concentration is high
 		led_state1 = ~led_state1;
 		Serial.println("Gas detected!");
-		//webSocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":1}");
+		webSocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":1}");
 	}
 	else
 	{
 		digitalWrite(LED_Fan, LOW);
-	//	webSocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":0}");
+	webSocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":0}");
 	//	 // Turn off the LED if gas concentration is low
 	}
 	timerIsr();
