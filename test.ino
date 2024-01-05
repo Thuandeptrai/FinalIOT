@@ -16,6 +16,20 @@
 const int buttonPin = 2;     // the number of the pushbutton pin
 
 
+
+#define LED_awning 17
+#define LED_kitchen 19
+#define LED_Fan 16
+#define BUTTON_kitchen  13
+#define BUTTON_awning   18
+#define gasSensor 25
+#define lightSensor 32
+#define motionSensor 27
+unsigned long interval = 1000;
+unsigned long interval1 = 5000;
+unsigned long previousMillis = 0;
+unsigned long previousMillis1 = 0;
+
 WiFiMulti WiFiMulti;
 WebSocketsClient webSocket;
 
@@ -109,7 +123,7 @@ void setup() {
 ;
  
 	// server address, port and URL
-	webSocket.begin("159.223.71.166", 8120,"/","device");
+	webSocket.begin("159.223.71.166", 8120,"/","ey0da");
 
 	// event handler
 	webSocket.onEvent(webSocketEvent);
@@ -126,6 +140,33 @@ void loop() {
     
     timerIsr();
   // ping server every 1000 milliseconds
+  nt sensorValue = analogRead(gasSensor);
+  float voltage = (float)sensorValue / 1024 * 5.0;
+
+
+  int gasValue = map(voltage, 0, 5, 0,  30);
+
+
+  unsigned long now = millis();
+  if (now - previousMillis >= interval) {
+    previousMillis = now;
+    Serial.print("gasValue: ");
+    Serial.println(gasValue); // Print the voltage value
+    Serial.print("voltage: ");
+    Serial.println(voltage);
+    Serial.print("sensorValue: ");
+    Serial.println(sensorValue);
+          if (gasValue >= 100) {
+           unsigned long now1 = millis();
+           if(now1 - previousMillis1>= interval1){
+            previousMillis1 = now1;
+            digitalWrite(LED_Fan, HIGH); // Turn on the LED if gas concentration is high
+        Serial.println("Gas detected!");
+           }
+          }
+      } else {
+        digitalWrite(LED_Fan, LOW); // Turn off the LED if gas concentration is low
+  }
 	webSocket.loop();
 
 }

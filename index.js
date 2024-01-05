@@ -206,7 +206,7 @@ wss.on("connection", async function connection(ws) {
     ws.send('Hello, client!'); // send message to client
   if (findKey !== null) {
     ws.isAlive = true;
-    const id = uuid.v4();
+    const id = ws.protocol;
     const obj = defaultObj(id);
     mapDeviceToObj.set(id, obj);
     objToMapDevice.set(ws, id);
