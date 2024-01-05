@@ -244,7 +244,8 @@ wss.on("connection", async function connection(ws) {
         let deviceObj = mapDeviceToObj.get(messageObj.id);
         // update deviceObj by messageObj i device1: 1 update only device1
         if (deviceObj) {
-          mapDeviceToObj.set(messageObj.id, { ...deviceObj, ...messageObj });
+          deviceObj[messageObj.key] = messageObj.value;
+          mapDeviceToObj.set(messageObj.id, deviceObj);
           // send to all device current device alive
           const allDevice = [];
           for (let [key, value] of mapDeviceToObj) {
