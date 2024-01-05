@@ -141,18 +141,14 @@ void loop()
 
 	int gasValue = map(voltage, 0, 5, 0, 30);
 
-	unsigned long now = millis();
-	if (now - previousMillis >= interval)
-	{
-		previousMillis = now;
+	
 		Serial.print("gasValue: ");
 		Serial.println(gasValue); // Print the voltage value
 		Serial.print("voltage: ");
 		Serial.println(voltage);
 		Serial.print("sensorValue: ");
 		Serial.println(sensorValue);
-	}
-	unsigned long now1 = millis();
+	
 	if (gasValue >= 100)
 	{
 		digitalWrite(LED_Fan, HIGH); // Turn on the LED if gas concentration is high
