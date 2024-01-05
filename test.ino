@@ -16,7 +16,7 @@
 #define LED_Fan 16
 #define BUTTON_kitchen 13
 #define BUTTON_awning 18
-#define gasSensor 25
+#define gasSensor 34
 #define lightSensor 32
 #define motionSensor 27
 unsigned long interval = 1000;
