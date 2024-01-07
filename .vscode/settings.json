@@ -16,6 +16,8 @@
         "xutility": "cpp",
         "xlocinfo": "cpp",
         "ostream": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "optional": "cpp",
+        "system_error": "cpp"
     }
 }
