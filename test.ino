@@ -105,9 +105,12 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 		int device6 = doc["device6"];
 		Serial.println(id);
 		if(device1 == 1){
+			Serial.println("Turn on LED kitchen");
 			digitalWrite(LED_awning, HIGH);
 		}
 		else{
+			Serial.println("Turn off LED kitchen");
+
 			digitalWrite(LED_awning, LOW);
 		}
 		Serial.println(device1);
