@@ -86,7 +86,7 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 		// Fetch values.
 		
 		// print all json to test
-		serializeJsonPretty(doc, Serial);
+		//serializeJsonPretty(doc, Serial);
 		Serial.println();
 		// get type of message
 		// get id of message
@@ -103,7 +103,7 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 		int device5 = doc["device5"];
 		// get device6 of message
 		int device6 = doc["device6"];
-		Serial.println(id);
+		//Serial.println(id);
 		if(device1 == 1){
 			Serial.println("Turn on LED kitchen");
 			digitalWrite(LED_awning, HIGH);
@@ -113,10 +113,10 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 
 			digitalWrite(LED_awning, LOW);
 		}
-		Serial.println(device1);
-		Serial.println(device2);
-		Serial.println(device3);
-		Serial.println(device4);
+	//	Serial.println(device1);
+		//Serial.println(device2);
+		//Serial.println(device3);
+		//Serial.println(device4);
 	}
 
 	break;
