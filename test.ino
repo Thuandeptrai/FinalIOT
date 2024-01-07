@@ -12,24 +12,11 @@
 #include <WiFiClientSecure.h>
 
 #include <WebSocketsClient.h>
-#define LED_awning 17
-#define LED_kitchen 19
-#define LED_Fan 16
-#define BUTTON_kitchen 13
-#define BUTTON_awning 18
-#define gasSensor 34
-#define lightSensor 32
-#define motionSensor 27
-unsigned long interval = 1000;
-unsigned long interval1 = 5000;
-unsigned long previousMillis = 0;
-unsigned long previousMillis1 = 0;
-int led_state1 = 0;
+
 
 WiFiMulti WiFiMulti;
 WebSocketsClient webSocket;
 #define USE_SERIAL Serial
-JsonDocument doc;
 // call back send ping to server
 void timerIsr()
 {
@@ -68,15 +55,15 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 	case WStype_CONNECTED:
 		USE_SERIAL.printf("[WSc] Connected to url: %s\n", payload);
 		// convert uint8_t to string
-		
+
 		break;
-	case WStype_TEXT:{
-		// USE_SERIAL.printf("[WSc] get text: %s\n", payload);
+	case WStype_TEXT:
+	{
+// generate doc from payload
+		DynamicJsonDocument doc(1024);
 
-		String json = String((char *)payload);
-		// send message to server when Connected
-		DeserializationError error = deserializeJson(doc, json);
-
+		// Deserialize the JSON document
+		DeserializationError error = deserializeJson(doc, payload);
 		// Test if parsing succeeds.
 		if (error)
 		{
@@ -85,25 +72,33 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 			return;
 		}
 		// Fetch values.
-		const char *type = doc["type"];
+		
+		// print all json to test
+		serializeJsonPretty(doc, Serial);
+		Serial.println();
+		// get type of message
+		// get id of message
 		const char *id = doc["id"];
-		const char *device1 = doc["device1"];
-		const char *device2 = doc["device2"];
-		const char *device3 = doc["device3"];
-		const char *device4 = doc["device4"];
-		const char *device5 = doc["device5"];
-		const char *device6 = doc["device6"];
-		USE_SERIAL.printf("type: %s\n", type);
-		USE_SERIAL.printf("id: %s\n", id);
-		USE_SERIAL.printf("device1: %s\n", device1);
-		USE_SERIAL.printf("device2: %s\n", device2);
-		USE_SERIAL.printf("device3: %s\n", device3);
-		USE_SERIAL.printf("device4: %s\n", device4);
-		USE_SERIAL.printf("device5: %s\n", device5);
-		USE_SERIAL.printf("device6: %s\n", device6);
+		// get device1 of message
+		int device1 = doc["device1"];
+		// get device2 of message
+		int device2 = doc["device2"];
+		// get device3 of message
+		int device3 = doc["device3"];
+		// get device4 of message
+		int device4 = doc["device4"];
+		// get device5 of message
+		int device5 = doc["device5"];
+		// get device6 of message
+		int device6 = doc["device6"];
+		Serial.println(id);
+		Serial.println(device1);
+		Serial.println(device2);
+		Serial.println(device3);
+		Serial.println(device4);
 	}
 
-		break;
+	break;
 	case WStype_BIN:
 		// // USE_SERIAL.printf("[WSc] get binary length: %u\n", length);
 		// // // hexdump(payload, length);
@@ -133,14 +128,13 @@ void setup()
 	// USE_SERIAL.begin(921600);
 	USE_SERIAL.begin(115200); // Start serial communication
 	USE_SERIAL.print("Connecting to WiFi");
-	WiFi.begin("36 lau 2", "0345616001");
+	WiFi.begin("Wokwi-GUEST", "", 6);
 	while (WiFi.status() != WL_CONNECTED)
 	{
 		USE_SERIAL.print(".");
 	}
 	USE_SERIAL.println(" Connected!");
 
-	pinMode(LED_Fan, OUTPUT);
 
 	for (uint8_t t = 4; t > 0; t--)
 	{
@@ -164,34 +158,12 @@ void setup()
 
 void loop()
 {
-	int sensorValue = analogRead(gasSensor);
-	float voltage = (float)sensorValue / 1024 * 5.0;
 
-	int gasValue = map(voltage, 0, 5, 0, 30);
-
-	Serial.print("gasValue: ");
-	Serial.println(gasValue); // Print the voltage value
-	Serial.print("voltage: ");
-	Serial.println(voltage);
-	Serial.print("sensorValue: ");
-	Serial.println(sensorValue);
-
-	if (gasValue >= 100)
-	{
-		digitalWrite(LED_Fan, HIGH); // Turn on the LED if gas concentration is high
-		led_state1 = ~led_state1;
-		Serial.println("Gas detected!");
-		webSocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":1}");
-	}
-	else
-	{
-		digitalWrite(LED_Fan, LOW);
-		webSocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":0}");
-		//	 // Turn off the LED if gas concentration is low
-	}
-	timerIsr();
-	// ping server every 1000 milliseconds
-	//	webSocket.sendTXT("{\"type\":\"ping\"}\n");
+	webSocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":0}");
+	//	 // Turn off the LED if gas concentration is low
+	// timerIsr();
+	//  ping server every 1000 milliseconds
+	webSocket.sendTXT("{\"type\":\"ping\"}\n");
 
 	webSocket.loop();
 }
