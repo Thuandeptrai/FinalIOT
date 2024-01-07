@@ -12,7 +12,19 @@
 #include <WiFiClientSecure.h>
 
 #include <WebSocketsClient.h>
-
+#define LED_awning 17
+#define LED_kitchen 19
+#define LED_Fan 16
+#define BUTTON_kitchen 13
+#define BUTTON_awning 18
+#define gasSensor 34
+#define lightSensor 32
+#define motionSensor 27
+unsigned long interval = 1000;
+unsigned long interval1 = 5000;
+unsigned long previousMillis = 0;
+unsigned long previousMillis1 = 0;
+int led_state1 = 0;
 
 WiFiMulti WiFiMulti;
 WebSocketsClient webSocket;
@@ -92,6 +104,12 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 		// get device6 of message
 		int device6 = doc["device6"];
 		Serial.println(id);
+		if(device1 == 1){
+			digitalWrite(LED_awning, HIGH);
+		}
+		else{
+			digitalWrite(LED_awning, LOW);
+		}
 		Serial.println(device1);
 		Serial.println(device2);
 		Serial.println(device3);
@@ -128,13 +146,14 @@ void setup()
 	// USE_SERIAL.begin(921600);
 	USE_SERIAL.begin(115200); // Start serial communication
 	USE_SERIAL.print("Connecting to WiFi");
-	WiFi.begin("Wokwi-GUEST", "", 6);
+	WiFi.begin("36 lau 2", "0345616001");
 	while (WiFi.status() != WL_CONNECTED)
 	{
 		USE_SERIAL.print(".");
 	}
 	USE_SERIAL.println(" Connected!");
 
+pinMode(LED_Fan, OUTPUT);
 
 	for (uint8_t t = 4; t > 0; t--)
 	{
@@ -158,8 +177,30 @@ void setup()
 
 void loop()
 {
+int sensorValue = analogRead(gasSensor);
+	float voltage = (float)sensorValue / 1024 * 5.0;
 
-	webSocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":0}");
+	int gasValue = map(voltage, 0, 5, 0, 30);
+
+	
+		Serial.print("gasValue: ");
+		Serial.println(gasValue); // Print the voltage value
+		Serial.print("voltage: ");
+		Serial.println(voltage);
+		Serial.print("sensorValue: ");
+		Serial.println(sensorValue);
+	
+	if (gasValue >= 100)
+	{
+		digitalWrite(LED_Fan, HIGH); // Turn on the LED if gas concentration is high
+		led_state1 = ~led_state1;
+		Serial.println("Gas detected!");
+		webSocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":1}");
+	}
+	else
+	{
+		digitalWrite(LED_Fan, LOW);
+	}
 	//	 // Turn off the LED if gas concentration is low
 	// timerIsr();
 	//  ping server every 1000 milliseconds
