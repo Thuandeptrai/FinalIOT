@@ -3,9 +3,8 @@ const keyModel = require('../model/key.model');
 class KeyController {
     async create(req, res) {
         try {
-            const name = req.body.name;
             // generate key
-            const key = await keyModel.create({ name });
+            const key = await keyModel.create(req.body);
             res.status(201).json(key);
         } catch (err) {
             res.status(500).json(err);

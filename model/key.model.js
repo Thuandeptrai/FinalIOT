@@ -13,7 +13,31 @@ const keySchema = mongoose.Schema({
     isActive: {
         type: Boolean,
         default: false
-    }
+    },
+    device1:{
+        type: String,
+        default: ""
+    },
+    device2:{
+        type: String,
+        default: ""
+    },
+    device3:{
+        type: String,
+        default: ""
+    },
+    device4:{
+        type: Object,
+        default: ""
+    },
+    device5:{
+        type: String,
+        default: ""
+    },
+    device6:{
+        type: String,
+        default: ""
+    },
 });
 
 module.exports = mongoose.model('Key', keySchema);

@@ -113,6 +113,7 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 
 			digitalWrite(LED_awning, LOW);
 		}
+		
 	//	Serial.println(device1);
 		//Serial.println(device2);
 		//Serial.println(device3);
@@ -198,16 +199,18 @@ int sensorValue = analogRead(gasSensor);
 		digitalWrite(LED_Fan, HIGH); // Turn on the LED if gas concentration is high
 		led_state1 = ~led_state1;
 		Serial.println("Gas detected!");
-		webSocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":1}");
+		webSocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":" + String(gasValue) + "}");
 	}
 	else
 	{
 		digitalWrite(LED_Fan, LOW);
+		webSocket.sendTXT("{\"type\":\"message\",\"id\":\"x5nr9\",\"device1\":0}");
+
 	}
 	//	 // Turn off the LED if gas concentration is low
-	// timerIsr();
+	 timerIsr();
 	//  ping server every 1000 milliseconds
-	webSocket.sendTXT("{\"type\":\"ping\"}\n");
+	//webSocket.sendTXT("{\"type\":\"ping\"}\n");
 
 	webSocket.loop();
 }
