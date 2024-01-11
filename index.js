@@ -307,7 +307,11 @@ wss.on("connection", async function connection(ws) {
   // check current device alive
   // clear interlval and create new interval
 });
-setInterval(function ping() {
+setInterval(async function ping() {
+  if(wss.clients.size === 0){
+    await key.updateMany({}, { isActive: false });
+    return;
+  }
   wss.clients.forEach(async function each(ws) {
     console.log(ws.isAlive);
     if (ws.isAlive === false) {

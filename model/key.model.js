@@ -31,11 +31,11 @@ const keySchema = mongoose.Schema({
         default: ""
     },
     device5:{
-        type: String,
+        type: Object,
         default: ""
     },
     device6:{
-        type: String,
+        type: Object,
         default: ""
     },
 });
