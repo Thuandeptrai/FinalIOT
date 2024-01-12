@@ -17,6 +17,7 @@ const mongoose = require("mongoose");
 const { createUser } = require("./controller/user.controller");
 const keyRouter = require("./router/key.router");
 const key = require("./model/key.model");
+const jwtMiddleware = require("./middleware/jwt.middleware");
 mongoose
   .connect("mongodb://127.0.0.1:27017/face", { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
@@ -151,11 +152,13 @@ app.post("/loginWithImage", upload.single("images"), async (req, res) => {
       return res.status(200).json({
         message: {
           userName: findUser.username,
+          phoneNumber: findUser.phoneNumber || null,
+          email: findUser.email || null,
           jwt_token: jwt_token
         }
       });
     }
-    return res.status(401).json({ message: null });
+    return res.status(401).json({ message: "Login Fail" });
   } catch (e) {
     console.log(e);
   }
@@ -187,6 +190,23 @@ app.post("/loginWithPassword", async (req, res) => {
       jwt_token: jwt_token
     }
   });
+});
+app.put("/editUser", jwtMiddleware, async (req, res) => {
+  const { username, password, phoneNumber } = req.body;
+  if (!username || !password || !phoneNumber) {
+    return res.status(400).json({ message: "username or password or phoneNumber is null" });
+  }
+  const user = await usermodel.findOne({ _id: req.userId });
+  if (!user) {
+    return res.status(400).json({ message: "user not found" });
+  }
+  user.username = username;
+  user.password = password;
+  user.phoneNumber = phoneNumber;
+  await user.save();
+  // remove password
+  user.password = undefined;
+  return res.status(200).json({ message: "success", user: user });
 });
 app.use("/key", keyRouter);
 app.listen(5010, () => console.log("Server started on port 3000"));
@@ -308,7 +328,6 @@ wss.on("connection", async function connection(ws) {
   // clear interlval and create new interval
 });
 setInterval(async function ping() {
- 
   wss.clients.forEach(async function each(ws) {
     console.log(ws.isAlive);
     if (ws.isAlive === false) {
@@ -322,7 +341,7 @@ setInterval(async function ping() {
       if (!id) {
         return;
       }
-    
+
       mapDeviceToObj.delete(id);
       objToMapDevice.delete(ws);
       // send to all device current device alive
@@ -341,7 +360,7 @@ setInterval(async function ping() {
     }
     ws.isAlive = false;
   });
-  if(mapDeviceToObj.size === 0){
+  if (mapDeviceToObj.size === 0) {
     await key.updateMany({}, { isActive: false });
     return;
   }
