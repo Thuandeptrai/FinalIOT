@@ -17,7 +17,7 @@ const mongoose = require("mongoose");
 const { createUser } = require("./controller/user.controller");
 const keyRouter = require("./router/key.router");
 const key = require("./model/key.model");
-const jwtMiddleware = require("./middleware/jwt.middleware");
+const jwtMiddleware = require("./middleware/jwt");
 mongoose
   .connect("mongodb://127.0.0.1:27017/face", { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
