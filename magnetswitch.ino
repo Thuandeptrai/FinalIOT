@@ -84,7 +84,8 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
     // send message to server when Connected
 
     break;
-  case WStype_TEXT:
+  case WStype_TEXT:{
+
     DynamicJsonDocument doc(1024);
 
 		// Deserialize the JSON document
@@ -133,7 +134,10 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 
     }
     // send message to server
+
     // webSocket.sendTXT("message here");
+  }
+
     break;
   case WStype_BIN:
     // // USE_SERIAL.printf("[WSc] get binary length: %u\n", length);
