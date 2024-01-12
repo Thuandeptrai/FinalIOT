@@ -192,8 +192,8 @@ app.post("/loginWithPassword", async (req, res) => {
   });
 });
 app.put("/editUser", jwtMiddleware, async (req, res) => {
-  const { username, password, phoneNumber } = req.body;
-  if (!username || !password || !phoneNumber) {
+  const { username, phoneNumber,email } = req.body;
+  if (!username  || !phoneNumber) {
     return res.status(400).json({ message: "username or password or phoneNumber is null" });
   }
   const user = await usermodel.findOne({ _id: req.userId });
@@ -201,7 +201,7 @@ app.put("/editUser", jwtMiddleware, async (req, res) => {
     return res.status(400).json({ message: "user not found" });
   }
   user.username = username;
-  user.password = password;
+  user.email = email;
   user.phoneNumber = phoneNumber;
   await user.save();
   // remove password
