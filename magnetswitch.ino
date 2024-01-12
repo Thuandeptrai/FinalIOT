@@ -84,61 +84,64 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
     // send message to server when Connected
 
     break;
-  case WStype_TEXT:{
+  case WStype_TEXT:
+  {
 
     DynamicJsonDocument doc(1024);
 
-		// Deserialize the JSON document
-		DeserializationError error = deserializeJson(doc, payload);
-		// Test if parsing succeeds.
-		if (error)
-		{
-			Serial.print(F("deserializeJson() failed: "));
-			Serial.println(error.f_str());
-			return;
-		}
-		// Fetch values.
-		
-		// print all json to test
-		//serializeJsonPretty(doc, Serial);
-		Serial.println();
-		// get type of message
-		// get id of message
-		const char *id = doc["id"];
-		// get device1 of message
-		int device1 = doc["device1"];
-		// get device2 of message
-		int device2 = doc["device2"];
-		// get device3 of message
-		int device3 = doc["device3"];
-		// get device4 of message
-		int device4 = doc["device4"];
-		// get device5 of message
-		int device5 = doc["device5"];
-		// get device6 of message
-		int device6 = doc["device6"];
-		//Serial.println(id);
-		if(device1 == 1){
-			digitalWrite(LED_Door, HIGH);
-		}
-		else{
-
-			digitalWrite(LED_Door, LOW);
-		}
-    if(device2 == 1){
-			digitalWrite(LED_bedroom, HIGH);
-
+    // Deserialize the JSON document
+    DeserializationError error = deserializeJson(doc, payload);
+    // Test if parsing succeeds.
+    if (error)
+    {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.f_str());
+      return;
     }
-    else{
-			digitalWrite(LED_bedroom, LOW);
+    // Fetch values.
 
+    // print all json to test
+    // serializeJsonPretty(doc, Serial);
+    Serial.println();
+    // get type of message
+    // get id of message
+    const char *id = doc["id"];
+    // get device1 of message
+    int device1 = doc["device1"];
+    // get device2 of message
+    int device2 = doc["device2"];
+    // get device3 of message
+    int device3 = doc["device3"];
+    // get device4 of message
+    int device4 = doc["device4"];
+    // get device5 of message
+    int device5 = doc["device5"];
+    // get device6 of message
+    int device6 = doc["device6"];
+    // Serial.println(id);
+    if (device1 == 1)
+    {
+      digitalWrite(LED_Door, HIGH);
+    }
+    else if (device1 == 0)
+    {
+
+      digitalWrite(LED_Door, LOW);
+    }
+    if (device2 == 1)
+    {
+      digitalWrite(LED_bedroom, HIGH);
+    }
+    else if (device2 == 0)
+    {
+      digitalWrite(LED_bedroom, LOW);
     }
     // send message to server
 
     // webSocket.sendTXT("message here");
   }
 
-    break;
+  break;
   case WStype_BIN:
     // // USE_SERIAL.printf("[WSc] get binary length: %u\n", length);
     // // // hexdump(payload, length);
