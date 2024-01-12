@@ -308,23 +308,21 @@ wss.on("connection", async function connection(ws) {
   // clear interlval and create new interval
 });
 setInterval(async function ping() {
-  if(wss.clients.size === 0){
-    await key.updateMany({}, { isActive: false });
-    return;
-  }
+ 
   wss.clients.forEach(async function each(ws) {
     console.log(ws.isAlive);
     if (ws.isAlive === false) {
       const id = objToMapDevice.get(ws);
-      if (!id) {
-        return;
-      }
       const updateDevice = await key.findOneAndUpdate(
         {
           key: ws.protocol
         },
         { isActive: false }
       );
+      if (!id) {
+        return;
+      }
+    
       mapDeviceToObj.delete(id);
       objToMapDevice.delete(ws);
       // send to all device current device alive
@@ -343,4 +341,8 @@ setInterval(async function ping() {
     }
     ws.isAlive = false;
   });
+  if(mapDeviceToObj.size === 0){
+    await key.updateMany({}, { isActive: false });
+    return;
+  }
 }, 10000);
