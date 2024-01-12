@@ -10,7 +10,7 @@ const jwtMiddleware = (req, res, next) => {
             return res.status(401).json({ message: "token invalid" })
         }
         // find user by id
-        req.userId = data.id;
+        req.userId = data._id;
         next();
     })
 }
