@@ -230,50 +230,51 @@ void loop()
   last_button_state_bedroom = button_state_bedroom;
   button_state_bedroom = digitalRead(BUTTON_bedroom);
   unsigned long now = millis();
-  if (now - previousMillis >= interval)
-  {
-    previousMillis = now;
-    // Door scenario
-    if (last_button_state_Door == HIGH && button_state_Door == LOW)
-    {
-      Serial.println("The button is pressed");
-    }
-    if (switchState == HIGH || button_state_Door == LOW)
-    { // if door is open or button is pressed
-      Serial.println("The door is open or button is pressed, turns on LED");
-      digitalWrite(LED_Door, HIGH); // turn on LED
-    }
-    else
-    {
-      Serial.println("The door is closed and button is not pressed, turns off LED");
-      digitalWrite(LED_Door, LOW); // turn on LED
-    }
-    /// End Door scenario
+  // if (now - previousMillis >= interval)
+  // {
+  //   previousMillis = now;
+  //   // Door scenario
+  //   if (last_button_state_Door == HIGH && button_state_Door == LOW)
+  //   {
+  //     Serial.println("The button is pressed");
+  //   }
+  //   if (switchState == HIGH || button_state_Door == LOW)
+  //   { // if door is open or button is pressed
+  //     Serial.println("The door is open or button is pressed, turns on LED");
+  //     digitalWrite(LED_Door, HIGH); // turn on LED
+  //   }
+  //   else
+  //   {
+  //     Serial.println("The door is closed and button is not pressed, turns off LED");
+  //     digitalWrite(LED_Door, LOW); // turn on LED
+  //   }
+  //   /// End Door scenario
 
-    /// Bedroom scenario
-    if ((button_state_bedroom == LOW) || (t >= 30))
-    {                                  // if door is open or button is pressed
-      digitalWrite(LED_bedroom, HIGH); // turn on LED
-    }
-    else
-    {
-      digitalWrite(LED_bedroom, LOW); // turn on LED
-    }
-    Serial.print(" last_button_state_bedroom:");
-    Serial.print(last_button_state_bedroom);
-    if (isnan(h) || isnan(t))
-    {
-      Serial.println("Failed to read from DHT sensor!");
-      return;
-    }
+  //   /// Bedroom scenario
+  //   if ((button_state_bedroom == LOW) || (t >= 30))
+  //   {                                  // if door is open or button is pressed
+  //     digitalWrite(LED_bedroom, HIGH); // turn on LED
+  //   }
+  //   else
+  //   {
+  //     digitalWrite(LED_bedroom, LOW); // turn on LED
+  //   }
+  //   Serial.print(" last_button_state_bedroom:");
+  //   Serial.print(last_button_state_bedroom);
+  //   if (isnan(h) || isnan(t))
+  //   {
+  //     Serial.println("Failed to read from DHT sensor!");
+  //     return;
+  //   }
 
-    Serial.print("Humidity: ");
-    Serial.print(h);
-    Serial.print(" %\t");
-    Serial.print("Temperature: ");
-    Serial.print(t);
-    Serial.println(" *C");
-  }
+  //   Serial.print("Humidity: ");
+  //   Serial.print(h);
+  //   Serial.print(" %\t");
+  //   Serial.print("Temperature: ");
+  //   Serial.print(t);
+  //   Serial.println(" *C");
+  // }
+  
   if ((digitalRead(LED_restroom) == HIGH) && (motion == false))
   {
     Serial.println("MOTION DETECTED!!!");
@@ -311,13 +312,13 @@ void loop()
   }
 
   // Turn off the LED after the number of seconds defined in the timeSeconds variable
-  if (startTimer && (now - lastTrigger > (timeSeconds * 1000)))
-  {
-    Serial.println("Motion stopped...");
-    digitalWrite(LED_restroom, LOW);
-    startTimer = false;
-    motion = false;
-  }
+  // if (startTimer && (now - lastTrigger > (timeSeconds * 1000)))
+  // {
+  //   Serial.println("Motion stopped...");
+  //   digitalWrite(LED_restroom, LOW);
+  //   startTimer = false;
+  //   motion = false;
+  // }
 
   // webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"s55po\",\"device5\": " + String(switchState)+ "}");
   // webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"s55po\",\"device6\": " + String(digitalRead(motionSensor))+ "}");
