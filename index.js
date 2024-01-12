@@ -151,7 +151,7 @@ app.post("/loginWithImage", upload.single("images"), async (req, res) => {
       );
       return res.status(200).json({
         message: {
-          userName: findUser.username,
+          username: findUser.username,
           phoneNumber: findUser.phoneNumber || null,
           email: findUser.email || null,
           jwt_token: jwt_token
@@ -186,7 +186,9 @@ app.post("/loginWithPassword", async (req, res) => {
   );
   return res.status(200).json({
     message: {
-      userName: userName.username,
+      username: findUser.username,
+      phoneNumber: findUser.phoneNumber || null,
+      email: findUser.email || null,
       jwt_token: jwt_token
     }
   });
