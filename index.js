@@ -317,6 +317,7 @@ wss.on("connection", async function connection(ws) {
         ws.send("pong");
       }
     } catch (e) {
+      console.log(e);
       ws.send("Not found device");
     }
   });
