@@ -211,21 +211,25 @@ app.put("/editUser", jwtMiddleware, async (req, res) => {
   return res.status(200).json({ message: "success", user: user });
 });
 //edit password
-app.put("/editPassword", jwtMiddleware, async (req, res) => {
-  const { password } = req.body;
-  if (!password) {
-    return res.status(400).json({ message: "password is null" });
+app.post("/editPassword", jwtMiddleware, async (req, res) => {
+ const {prevPassword, password} = req.body;
+  if(!prevPassword || !password){
+    return res.status(400).json({message: "prevPassword or password is null"});
   }
-  // compare password
-  if(!bcryptjs.compareSync(password, req.user.password)){
-    return res.status(400).json({ message: "password invalid" });
+  // compare prevPassword with password in database
+  const findUser = await usermodel.findOne({_id: req.userId});
+  if(!findUser){
+    return res.status(400).json({message: "user not found"});
   }
-  // save new password
-  req.user.password = bcryptjs.hashSync(password, 10);
-  await req.user.save();
-  // remove password
-  req.user.password = undefined;
-  return res.status(200).json({ message: "success", user: req.user });
+  // const checkPassword = bcryptjs.compareSync(prevPassword, findUser.password);
+  // if(!checkPassword){
+  //   return res.status(400).json({message: "prevPassword invalid"});
+  // }
+  // hash password
+  findUser.password = bcryptjs.hashSync(password, 10);
+  await findUser.save();
+  findUser.password = undefined;
+  return res.status(200).json({message: "success"});
 });
 app.use("/key", keyRouter);
 app.listen(5010, () => console.log("Server started on port 3000"));
