@@ -305,7 +305,7 @@ wss.on("connection", async function connection(ws) {
               if (!objToMapDevice.get(client)) {
                 client.send(JSON.stringify(allDevice));
               } else if (objToMapDevice.get(client) === messageObj.id) {
-                client.send(JSON.stringify(dfeviceObj));
+                client.send(JSON.stringify(deviceObj));
               }
             }
           });
