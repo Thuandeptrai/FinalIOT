@@ -164,9 +164,7 @@ app.post("/loginWithImage", upload.single("images"), async (req, res) => {
   }
 });
 app.post("/loginWithPassword", async (req, res) => {
-  console.log(req.body);
   const { username, password } = req.body;
-  console.log(username);
   const userName = await usermodel.findOne({ username: username });
   if (!userName) {
     return res.status(400).json({ message: "username not found" });
@@ -186,9 +184,9 @@ app.post("/loginWithPassword", async (req, res) => {
   );
   return res.status(200).json({
     message: {
-      username: findUser.username,
-      phoneNumber: findUser.phoneNumber || null,
-      email: findUser.email || null,
+      username: userName.username,
+      phoneNumber: userName.phoneNumber || null,
+      email: userName.email || null,
       jwt_token: jwt_token
     }
   });
@@ -307,7 +305,7 @@ wss.on("connection", async function connection(ws) {
               if (!objToMapDevice.get(client)) {
                 client.send(JSON.stringify(allDevice));
               } else if (objToMapDevice.get(client) === messageObj.id) {
-                client.send(JSON.stringify(deviceObj));
+                client.send(JSON.stringify(dfeviceObj));
               }
             }
           });
