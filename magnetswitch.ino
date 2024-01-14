@@ -210,7 +210,7 @@ void setup()
   button_state_Door = digitalRead(BUTTON_Door);
   // restroom setup
   pinMode(motionSensor, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(motionSensor), detectsMovement, RISING); // Set motionSensor pin as interrupt, assign interrupt function and set RISING mode
+//  attachInterrupt(digitalPinToInterrupt(motionSensor), detectsMovement, RISING); // Set motionSensor pin as interrupt, assign interrupt function and set RISING mode
   pinMode(LED_restroom, OUTPUT);                                                 // set ESP32 pin to output mode
   digitalWrite(LED_restroom, LOW);
   // bed room setup
@@ -263,7 +263,8 @@ void loop()
     Flag2 = digitalRead(motionSensor);
     if(digitalRead(motionSensor) == 1){
     webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device3\":1}");
-
+    }else{
+    webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device3\":0}");
     }
     webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device6\": " + String(digitalRead(motionSensor)) + "}");
   }
@@ -292,26 +293,26 @@ void loop()
   //    digitalWrite(LED_bedroom, LOW); // turn on LED
   //
   //  }
-  if (isnan(h) || isnan(T))
-  {
-    Serial.println("Failed to read from DHT sensor!");
-    return;
-  }
+  // if (isnan(h) || isnan(T))
+  // {
+  //   Serial.println("Failed to read from DHT sensor!");
+  //   return;
+  // }
 
-  if ((digitalRead(LED_restroom) == HIGH) && (motion == false))
-  {
-    Serial.println("MOTION DETECTED!!!");
-    motion = true;
-  }
-  // Turn off the LED after the number of seconds defined in the timeSeconds variable
-  if (startTimer && (now - lastTrigger > (timeSeconds * 1000)))
-  {
-    Serial.println("Motion stopped...");
-    digitalWrite(LED_restroom, LOW);
-    webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device3\":0}");
-    startTimer = false;
-    motion = false;
-  }
+  // if ((digitalRead(LED_restroom) == HIGH) && (motion == false))
+  // {
+  //   Serial.println("MOTION DETECTED!!!");
+  //   motion = true;
+  // }
+  // // Turn off the LED after the number of seconds defined in the timeSeconds variable
+  // if (startTimer && (now - lastTrigger > (timeSeconds * 1000)))
+  // {
+  //   Serial.println("Motion stopped...");
+  //   digitalWrite(LED_restroom, LOW);
+  //   webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device3\":0}");
+  //   startTimer = false;
+  //   motion = false;
+  // }
   //    webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"s55po\",\"device5\": " + String(switchState)+ "}");
   //    webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"s55po\",\"device6\": " + String(digitalRead(motionSensor))+ "}");
   timerIsr(); //  ping server every 1000 milliseconds
