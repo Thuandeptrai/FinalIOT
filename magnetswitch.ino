@@ -41,6 +41,7 @@ int led_restroom_state = 0;
 float pretemp = 0;
 int Flag1 = 99999;
 int Flag2 = 99999;
+int CurentState1 = 0;
 
 // constants won't change :
 DHT dht(DHTPIN, DHTTYPE);
@@ -120,25 +121,32 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
     // get device6 of message
     int device6 = doc["device6"];
     // Serial.println(id);
+
+    // SWITCH_PIN
     if (device1 == 1)
     {
       digitalWrite(LED_Door, HIGH);
-     // digitalWrite(SWITCH_PIN, HIGH)
-    //  switchstate = true;
+      // digitalWrite(SWITCH_PIN, HIGH)
+      //  switchstate = true;
     }
     else if (device1 == 0)
     {
 
       digitalWrite(LED_Door, LOW);
-     // digitalWrite(SWITCH_PIN, LOW)
+      // digitalWrite(SWITCH_PIN, LOW)
     }
+
     if (device2 == 1)
     {
       digitalWrite(LED_bedroom, HIGH);
+      digitalWrite(BUTTON_bedroom, LOW);
+      CurentState1 = 1;
     }
     else if (device2 == 0)
     {
       digitalWrite(LED_bedroom, LOW);
+      digitalWrite(BUTTON_bedroom, HIGH);
+      CurentState1 = 0;
     }
     // send message to server
 
@@ -273,7 +281,7 @@ void loop()
     }
     else
     {
-   digitalWrite(LED_restroom, LOW); // turn on LED
+      digitalWrite(LED_restroom, LOW); // turn on LED
 
       webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device3\":0}");
     }
@@ -296,14 +304,22 @@ void loop()
   //  ///End Door scenario
   //
   //  ///Bedroom scenario
-  //  if ( (button_state_bedroom == LOW) || (T >= 30)) { // if door is open or button is pressed
-  //    digitalWrite(LED_bedroom, HIGH); // turn on LED
-  //
-  //
-  //  } else {
-  //    digitalWrite(LED_bedroom, LOW); // turn on LED
-  //
-  //  }
+  if ((button_state_bedroom == LOW) || (T >= 30))
+  {
+    if (CurentState1 == 0)
+    {
+      digitalWrite(LED_bedroom, HIGH); // turn on LED
+      webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":1}");
+    }
+  }
+  else
+  {
+    if (CurentState1 == 1)
+    {
+      digitalWrite(LED_bedroom, LOW); // turn on LED
+      webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":0}");
+    }
+  }
   // if (isnan(h) || isnan(T))
   // {
   //   Serial.println("Failed to read from DHT sensor!");
