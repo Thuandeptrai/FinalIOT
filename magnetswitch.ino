@@ -312,8 +312,7 @@ void loop()
       webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":1}");
     }
   }
-  else
-  {
+  else if( button_state_bedroom == HIGH )  {
     if (CurentState1 == 1)
     {
       digitalWrite(LED_bedroom, LOW); // turn on LED
