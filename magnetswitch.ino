@@ -304,18 +304,18 @@ void loop()
   //  ///End Door scenario
   //
   //  ///Bedroom scenario
-  // if (digitalRead(BUTTON_bedroom) == 0 || (T >= 30))
-  // {
+  if (digitalRead(BUTTON_bedroom) == 0 || (T >= 30))
+  {
 
-  //   digitalWrite(LED_bedroom, HIGH); // turn on LED
-  //   webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":1}");
-  // }
-  // else if (digitalRead(BUTTON_bedroom) == 1)
-  // {
+    digitalWrite(LED_bedroom, HIGH); // turn on LED
+    webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":1}");
+  }
+  else if (digitalRead(BUTTON_bedroom) == 1)
+  {
 
-  //   digitalWrite(LED_bedroom, LOW); // turn on LED
-  //   webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":0}");
-  // }
+    digitalWrite(LED_bedroom, LOW); // turn on LED
+    webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":0}");
+  }
   // if (isnan(h) || isnan(T))
   // {
   //   Serial.println("Failed to read from DHT sensor!");
