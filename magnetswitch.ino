@@ -169,7 +169,7 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 void IRAM_ATTR detectsMovement()
 {
   digitalWrite(LED_restroom, HIGH);
-  webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device3\":1}");
+  //webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device3\":1}");
   startTimer = true;
   lastTrigger = millis();
 }
@@ -261,6 +261,10 @@ void loop()
   else if (Flag2 != digitalRead(motionSensor) && Flag2 != 99999)
   {
     Flag2 = digitalRead(motionSensor);
+    if(digitalRead(motionSensor) == 1){
+    webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device3\":1}");
+
+    }
     webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device6\": " + String(digitalRead(motionSensor)) + "}");
   }
 
