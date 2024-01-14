@@ -41,8 +41,8 @@ int led_restroom_state = 0;
 float pretemp = 0;
 int Flag1 = 99999;
 int Flag2 = 99999;
-int CurentState1 = 0;
-
+int CurentState1 = 99999;
+int prevValue = 99999;
 // constants won't change :
 DHT dht(DHTPIN, DHTTYPE);
 unsigned long lastTrigger = 0;
@@ -139,13 +139,11 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
     if (device2 == 1)
     {
       digitalWrite(LED_bedroom, HIGH);
-      digitalWrite(BUTTON_bedroom, LOW);
       CurentState1 = 1;
     }
     else if (device2 == 0)
     {
       digitalWrite(LED_bedroom, LOW);
-      digitalWrite(BUTTON_bedroom, HIGH);
       CurentState1 = 0;
     }
     // send message to server
@@ -304,17 +302,31 @@ void loop()
   //  ///End Door scenario
   //
   //  ///Bedroom scenario
-  if (digitalRead(BUTTON_bedroom) == 0 || (T >= 30))
+
+  if (prevValue == 9999)
   {
 
-    digitalWrite(LED_bedroom, HIGH); // turn on LED
-    webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":1}");
+    prevValue = digitalRead(BUTTON_bedroom);
   }
-  else if (digitalRead(BUTTON_bedroom) == 1)
+  else if (prevValue != digitalRead(BUTTON_bedroom) && prevValue != 9999)
   {
-
-    digitalWrite(LED_bedroom, LOW); // turn on LED
-    webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":0}");
+    prevValue = digitalRead(BUTTON_bedroom);
+    if (CurentState1 == 0)
+    {
+      digitalWrite(LED_bedroom, HIGH);
+      webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":1}");
+      CurentState1 = 1;
+    }
+    else if (CurentState1 == 1)
+    {
+      digitalWrite(LED_bedroom, LOW);
+      webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":0}");
+      CurentState1 = 0;
+    }
+    else if (CurentState1 == 99999)
+    {
+      webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":" String(digitalRead(BUTTON_bedroom)) "}");
+    }
   }
   // if (isnan(h) || isnan(T))
   // {
