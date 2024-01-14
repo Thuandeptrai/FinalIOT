@@ -304,20 +304,17 @@ void loop()
   //  ///End Door scenario
   //
   //  ///Bedroom scenario
-  if ((button_state_bedroom == LOW) || (T >= 30))
+  if (digitalRead(BUTTON_bedroom) == 0 || (T >= 30))
   {
-    if (CurentState1 == 0)
-    {
-      digitalWrite(LED_bedroom, HIGH); // turn on LED
-      webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":1}");
-    }
+
+    digitalWrite(LED_bedroom, HIGH); // turn on LED
+    webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":1}");
   }
-  else if( button_state_bedroom == HIGH )  {
-    if (CurentState1 == 1)
-    {
-      digitalWrite(LED_bedroom, LOW); // turn on LED
-      webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":0}");
-    }
+  else if (digitalRead(BUTTON_bedroom) == 1)
+  {
+
+    digitalWrite(LED_bedroom, LOW); // turn on LED
+    webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":0}");
   }
   // if (isnan(h) || isnan(T))
   // {
