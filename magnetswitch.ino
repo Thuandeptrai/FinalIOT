@@ -123,14 +123,14 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
     if (device1 == 1)
     {
       digitalWrite(LED_Door, HIGH);
-      digitalWrite(SWITCH_PIN, HIGH)
-      switchstate = true;
+     // digitalWrite(SWITCH_PIN, HIGH)
+    //  switchstate = true;
     }
     else if (device1 == 0)
     {
 
       digitalWrite(LED_Door, LOW);
-      digitalWrite(SWITCH_PIN, LOW)
+     // digitalWrite(SWITCH_PIN, LOW)
     }
     if (device2 == 1)
     {
