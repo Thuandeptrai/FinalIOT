@@ -28,6 +28,7 @@ int button_state_Door;      // the current state of button
 int last_button_state_Door; // the previous state of button
 int button_state_bedroom;   // the current state of button
 int last_button_state_bedroom;
+int switchstate = false;
 // the current state of LED
 // int button_state_restroom;       // the current state of button
 // int last_button_state_restroom;  // the previous state of button
@@ -122,11 +123,14 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
     if (device1 == 1)
     {
       digitalWrite(LED_Door, HIGH);
+      digitalWrite(SWITCH_PIN, HIGH)
+      switchstate = true;
     }
     else if (device1 == 0)
     {
 
       digitalWrite(LED_Door, LOW);
+      digitalWrite(SWITCH_PIN, LOW)
     }
     if (device2 == 1)
     {
@@ -169,7 +173,7 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
 void IRAM_ATTR detectsMovement()
 {
   digitalWrite(LED_restroom, HIGH);
-  //webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device3\":1}");
+  // webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device3\":1}");
   startTimer = true;
   lastTrigger = millis();
 }
@@ -210,8 +214,8 @@ void setup()
   button_state_Door = digitalRead(BUTTON_Door);
   // restroom setup
   pinMode(motionSensor, INPUT_PULLUP);
-//  attachInterrupt(digitalPinToInterrupt(motionSensor), detectsMovement, RISING); // Set motionSensor pin as interrupt, assign interrupt function and set RISING mode
-  pinMode(LED_restroom, OUTPUT);                                                 // set ESP32 pin to output mode
+  //  attachInterrupt(digitalPinToInterrupt(motionSensor), detectsMovement, RISING); // Set motionSensor pin as interrupt, assign interrupt function and set RISING mode
+  pinMode(LED_restroom, OUTPUT); // set ESP32 pin to output mode
   digitalWrite(LED_restroom, LOW);
   // bed room setup
   dht.begin();
@@ -261,10 +265,17 @@ void loop()
   else if (Flag2 != digitalRead(motionSensor) && Flag2 != 99999)
   {
     Flag2 = digitalRead(motionSensor);
-    if(digitalRead(motionSensor) == 1){
-    webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device3\":1}");
-    }else{
-    webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device3\":0}");
+    if (digitalRead(motionSensor) == 1)
+    {
+   digitalWrite(LED_bedroom, HIGH); // turn on LED
+
+      webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device3\":1}");
+    }
+    else
+    {
+   digitalWrite(LED_bedroom, LOW); // turn on LED
+
+      webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device3\":0}");
     }
     webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device6\": " + String(digitalRead(motionSensor)) + "}");
   }
