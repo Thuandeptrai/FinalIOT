@@ -267,13 +267,13 @@ void loop()
     Flag2 = digitalRead(motionSensor);
     if (digitalRead(motionSensor) == 1)
     {
-   digitalWrite(LED_bedroom, HIGH); // turn on LED
+      digitalWrite(LED_restroom, HIGH); // turn on LED
 
       webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device3\":1}");
     }
     else
     {
-   digitalWrite(LED_bedroom, LOW); // turn on LED
+   digitalWrite(LED_restroom, LOW); // turn on LED
 
       webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device3\":0}");
     }
