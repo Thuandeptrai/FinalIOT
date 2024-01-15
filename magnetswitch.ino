@@ -308,6 +308,31 @@ void loop()
   //  ///End Door scenario
   //
   //  ///Bedroom scenario
+  if (prevValue1 == 99999)
+  {
+    prevValue1 = digitalRead(BUTTON_Door);
+  }
+  else if (prevValue1 != digitalRead(BUTTON_Door) && prevValue1 != 99999)
+  {
+    prevValue1 = digitalRead(BUTTON_Door);
+    if (CurentState2 == 0)
+    {
+      digitalWrite(LED_Door, HIGH);
+      webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device1\":1}");
+      CurentState2 = 1;
+    }
+    else if (CurentState2 == 1)
+    {
+      digitalWrite(LED_Door, LOW);
+      webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device1\":0}");
+      CurentState2 = 0;
+    }
+    else if (CurentState2 == 99999)
+    {
+      digitalWrite(LED_Door, digitalRead(BUTTON_Door));
+      webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device1\":" String(digitalRead(BUTTON_Door)) "}");
+    }
+  }
   if (T > 30)
   {
     if (digitalRead(LED_bedroom) == LOW)
@@ -319,13 +344,12 @@ void loop()
   }
   else
   {
-    if(digitalRead(LED_bedroom) == HIGH)
+    if (digitalRead(LED_bedroom) == HIGH)
     {
       digitalWrite(LED_bedroom, LOW);
       webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":0}");
       CurentState1 = 0;
     }
-    
   }
   if (prevValue == 9999)
   {
