@@ -344,7 +344,7 @@ void loop()
   }
   else
   {
-    if (digitalRead(LED_bedroom) == HIGH &&  prevValue === 1 && prevValue !== 9999)
+    if (digitalRead(LED_bedroom) == HIGH &&  prevValue == 1 && prevValue != 9999)
     {
       digitalWrite(LED_bedroom, LOW);
       webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":0}");
