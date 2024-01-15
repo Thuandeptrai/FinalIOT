@@ -325,6 +325,8 @@ void loop()
     }
     else if (CurentState1 == 99999)
     {
+      digitalWrite(LED_bedroom, digitalRead(BUTTON_bedroom));
+
       webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":" String(digitalRead(BUTTON_bedroom)) "}");
     }
   }
