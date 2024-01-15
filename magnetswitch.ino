@@ -330,7 +330,7 @@ void loop()
     else if (CurentState2 == 99999)
     {
       digitalWrite(LED_Door, digitalRead(BUTTON_Door));
-      webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device1\":" String(digitalRead(BUTTON_Door)) "}");
+      webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device1\":" + String(digitalRead(BUTTON_Door)) + "}");
     }
   }
   if (T > 30)
@@ -344,7 +344,7 @@ void loop()
   }
   else
   {
-    if (digitalRead(LED_bedroom) == HIGH)
+    if (digitalRead(LED_bedroom) == HIGH &&  prevValue === 1 && prevValue !== 9999)
     {
       digitalWrite(LED_bedroom, LOW);
       webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":0}");
@@ -374,7 +374,7 @@ void loop()
     else if (CurentState1 == 99999)
     {
       digitalWrite(LED_bedroom, digitalRead(BUTTON_bedroom));
-      webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":" String(digitalRead(BUTTON_bedroom)) "}");
+      webSocket.sendTXT("{ \"type\": \"message\",\"id\": \"gqlck\",\"device2\":" + String(digitalRead(BUTTON_bedroom)) +"}");
     }
   }
   // if (isnan(h) || isnan(T))
